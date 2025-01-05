@@ -64,8 +64,15 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
             if (!unit->GetSelected()) continue;
             auto* itemPlaced = unit->GetPlaced();
 
+            if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+                if (itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
+                    SetHolding(itemPlaced->GetPlaced());
+                    itemPlaced->ClearItems();
+                }
+            }
+
             // If the player is not currently holding an item
-            if (itemHeld == nullptr) {
+            else if (itemHeld == nullptr) {
                 // If there is nothing placed
                 if (itemPlaced == nullptr) continue;
 
@@ -115,13 +122,6 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
                 SetHolding(nullptr);
                 if (itemPlaced->GetType() == "frying pan") {
                     itemPlaced->ResetTimer();
-                }
-            }
-
-            if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-                if (itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
-                    SetHolding(itemPlaced->GetPlaced());
-                    itemPlaced->ClearItems();
                 }
             }
         }

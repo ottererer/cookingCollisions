@@ -52,7 +52,7 @@ int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& ordere
                         found = true;
 
                         // Adds time and score
-                        gameTimer += 105.f;
+                        gameTimer += 20.f;
                         score += 10;
                         if (gameTimer > 180.f) gameTimer = 180.f; // Ensures the time does not go above 180 seconds
                     }
@@ -152,9 +152,11 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
 
     // Resets the time, and determines the time until the next order appears
     if (timeSinceOrder >= timeToNext) {
-        timeSinceOrder = 0;
-        timeToNext = 25.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
-        orders.push_back(new Order);
+        if (orders.size() < 5) {
+            timeSinceOrder = 0;
+            timeToNext = 30.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+            orders.push_back(new Order);
+        }
     }
 
     // Sets the order of and draws all orders
@@ -224,7 +226,14 @@ void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score)
 // The main sequence of the program
 int main() {
     InitWindow(winWidth, winHeight, "Cooking Collisions");
+    InitAudioDevice();
     SetTargetFPS(FPS);
+
+    Music music = LoadMusicStream("assets/LaMusique.mp3");
+    SetMasterVolume(0.4f);
+    bool paused = false;
+
+    PlayMusicStream(music);
 
     std::string gameState = "menu";  // Initialises the game state to the menu
 
@@ -242,9 +251,9 @@ int main() {
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 25.f;
+    float timeToNext = 30.f;
 
-    Player player(Vector2{ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
+    Player player({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
     Order::AddType({ "caramel energy cube", "spicy frost bomb", "protein salad",
                     "liquid flame soup", "frosted energy treat"});
@@ -369,6 +378,15 @@ int main() {
 
         float deltaTime = GetFrameTime();
         float fps = GetFPS();
+        UpdateMusicStream(music);
+
+        if (IsKeyPressed(KEY_P))
+        {
+            paused = !paused;
+
+            if (paused) PauseMusicStream(music);
+            else ResumeMusicStream(music);
+        }
 
         // Displays the framerate as the window title
         std::stringstream ss;
@@ -406,10 +424,38 @@ int main() {
             drawMain(deltaTime, score, globalTime, gameTimer, timeSinceOrder, timeToNext, player,
                     counter, items, orders, recipeBook);
 
-            // If time runs out, end the game
+            // If time runs out, ends and resets the game
             if (gameTimer <= 0.f) {
                 if (score > highScore) highScore = score;
                 gameState = "end";
+                player.SetHolding(nullptr);
+                player.SetPos({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
+                player.SetAngle(0.f);
+
+                for (auto& unit : counter.GetUnits()) {
+                    unit.ClearPlaced();
+                }
+
+                items.clear();
+
+                items.push_back(new Tool(choppingBoardTextures, "chopping board"));
+                items.push_back(new Tool(choppingBoardTextures, "chopping board"));
+                items.push_back(new Tool(fryingPanTextures, "frying pan", 120.f, 120.f));
+                items.push_back(new Tool(fryingPanTextures, "frying pan", 120.f, 120.f));
+
+                counter.GetUnits()[4].AddItem(items[0]);
+                counter.GetUnits()[5].AddItem(items[1]);
+                counter.GetUnits()[8].AddItem(items[2]);
+                counter.GetUnits()[9].AddItem(items[3]);
+
+                score = 0;
+                globalTime = 0.f;
+                gameTimer = 120.f;
+                timeSinceOrder = 0.f;
+                timeToNext = 30.f;
+
+                orders.clear();
+                orders.push_back(new Order);
             }
         }
 

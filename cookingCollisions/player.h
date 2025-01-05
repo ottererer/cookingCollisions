@@ -37,6 +37,7 @@ public:
     // Setters
     void SetPos(Vector2 pos) { screenPos = pos; }
     void SetHolding(BaseItem* item) { itemHeld = item; }
+    void SetAngle(float angle) { viewDir = 0; }
 
 private:
     Vector2 screenPos{};
