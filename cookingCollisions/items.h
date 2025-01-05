@@ -76,7 +76,7 @@ protected:
 	std::vector<BaseItem*> itemsPlaced = { nullptr, nullptr };
 	std::vector<BaseItem*> tempItems = { nullptr, nullptr };
 
-	static std::map<std::string, Texture2D> dishTextures;
+	static std::unordered_map<std::string, std::map<std::string, Texture2D>> dishTextures;
 	static RecipeGraph& recipes;
 	static std::vector<std::string> orderedDishes;
 

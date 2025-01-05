@@ -117,6 +117,13 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
                     itemPlaced->ResetTimer();
                 }
             }
+
+            if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+                if (itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
+                    SetHolding(itemPlaced->GetPlaced());
+                    itemPlaced->ClearItems();
+                }
+            }
         }
     }
     // Handles actions, e.g. chopping

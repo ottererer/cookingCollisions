@@ -1,7 +1,7 @@
 #include "items.h"
 
 // Defines static attributes
-std::map<std::string, Texture2D> BaseItem::dishTextures;
+std::unordered_map<std::string, std::map<std::string, Texture2D>> BaseItem::dishTextures;
 RecipeGraph& BaseItem::recipes = RecipeGraph::GetInstance();
 std::vector<std::string> BaseItem::orderedDishes;
 
@@ -22,27 +22,76 @@ Texture2D BaseItem::LoadTexture(std::string path)
 void BaseItem::SetupClass()
 {
     // Stores all available ingredients and dishes as nodes in a DAG
-    std::vector<std::string> items = { "tomato", "chopped tomato", "bread", "tomato sandwich", "patty",
-        "cooked patty", "burnt patty"};
+    std::vector<std::string> items = { "sweet crystal", "spice particle", "energy particle", "liquid essence",
+        "protein orb", "vegetable core", "aroma sphere", "cooling shard", "caramel essence", "frozen spice mix",
+        "protein veg mix", "spiced liquid", "sugar shards", "icy sweet mix", "caramel energy cube",
+        "spicy frost bomb", "protein salad", "liquid flame soup", "frosted energy treat"};
     for (const auto item : items) {
         recipes.AddNode(item);
     }
 
     // Adds edges between nodes with an input, which indicate what can be turned into what, and how
-    recipes.AddEdge("tomato", "chopped tomato", "chopping board");
-    recipes.AddEdge("chopped tomato", "tomato sandwich");
-    recipes.AddEdge("bread", "tomato sandwich");
-    recipes.AddEdge("patty", "cooked patty", "frying pan");
-    recipes.AddEdge("cooked patty", "burnt patty", "frying pan");
+    recipes.AddEdge("sweet crystal", "caramel essence", "frying pan");
+    recipes.AddEdge("caramel essence", "caramel energy cube");
+    recipes.AddEdge("energy particle", "caramel energy cube");
+
+    recipes.AddEdge("spice particle", "frozen spice mix");
+    recipes.AddEdge("cooling shard", "frozen spice mix");
+    recipes.AddEdge("frozen spice mix", "spicy frost bomb", "chopping board");
+
+    recipes.AddEdge("protein orb", "protein veg mix");
+    recipes.AddEdge("vegetable core", "protein veg mix");
+    recipes.AddEdge("protein veg mix", "protein salad");
+    recipes.AddEdge("aroma sphere", "protein salad");
+
+    recipes.AddEdge("liquid essence", "spiced liquid");
+    recipes.AddEdge("spice particle", "spiced liquid");
+    recipes.AddEdge("spiced liquid", "liquid flame soup", "frying pan");
+
+    recipes.AddEdge("sweet crystal", "sugar shards", "chopping board");
+    recipes.AddEdge("sugar shards", "icy sweet mix");
+    recipes.AddEdge("cooling shard", "icy sweet mix");
+    recipes.AddEdge("icy sweet mix", "frosted energy treat");
+    recipes.AddEdge("energy particle", "frosted energy treat");
 
     // Marks all objects that can be served
-    std::vector<std::string> serveable = { "tomato sandwich" };
+    std::vector<std::string> serveable = { "caramel energy cube", "spicy frost bomb", "protein salad",
+                                            "liquid flame soup", "frosted energy treat"};
     for (int i = 0; i < serveable.size(); i++) {
         recipes.AddEdge(serveable[i], "serving", "serve");
     }
 
     // Loads static textures to be used for non-spawning dishes
-    dishTextures["tomato sandwich"] = LoadTexture("assets/CaramelEnergyCube.png");
+    std::map<std::string, Texture2D> caramelEnergyCubeTextures;
+    caramelEnergyCubeTextures["default"] = LoadTexture("assets/CaramelEnergyCube.png");
+    dishTextures["caramel energy cube"] = caramelEnergyCubeTextures;
+
+    std::map<std::string, Texture2D> frozenSpiceMixTextures;
+    frozenSpiceMixTextures["default"] = LoadTexture("assets/FrozenSpiceMix.png");
+    frozenSpiceMixTextures["chopped"] = LoadTexture("assets/SpicyFrostBomb.png");
+    dishTextures["frozen spice mix"] = frozenSpiceMixTextures;
+
+    std::map<std::string, Texture2D> proteinSaladTextures;
+    proteinSaladTextures["default"] = LoadTexture("assets/ProteinSalad.png");
+    dishTextures["protein salad"] = proteinSaladTextures;
+
+    std::map<std::string, Texture2D> spicedLiquidTextures;
+    spicedLiquidTextures["default"] = LoadTexture("assets/SpicedLiquid.png");
+    spicedLiquidTextures["cooked"] = LoadTexture("assets/LiquidFlameSoup.png");
+    dishTextures["spiced liquid"] = spicedLiquidTextures;
+
+    std::map<std::string, Texture2D> frostedEnergyTreatTextures;
+    frostedEnergyTreatTextures["default"] = LoadTexture("assets/FrostedEnergyTreat.png");
+    dishTextures["frosted energy treat"] = frostedEnergyTreatTextures;
+
+    std::map<std::string, Texture2D> proteinVegMixTextures;
+    proteinVegMixTextures["default"] = LoadTexture("assets/ProteinVegMix.png");
+    dishTextures["protein veg mix"] = proteinVegMixTextures;
+
+    std::map<std::string, Texture2D> icySweetMixTextures;
+    icySweetMixTextures["default"] = LoadTexture("assets/IcySweetMix.png");
+    dishTextures["icy sweet mix"] = icySweetMixTextures;
+
 }
 
 // Places a new item on a given item
@@ -62,8 +111,10 @@ void BaseItem::AddItem(BaseItem* item)
 // Static method to unload all static textures loaded by the Items class
 void BaseItem::UnloadStaticTextures()
 {
-    for (auto& texturePair : dishTextures) {
-        UnloadTexture(texturePair.second);
+    for (auto& textureMap : dishTextures) {
+        for (auto& texturePair : textureMap.second) {
+            UnloadTexture(texturePair.second);
+        }
     }
     dishTextures.clear();
 }
@@ -84,7 +135,6 @@ void BaseItem::HandleCooking()
         if (recipes.ApplyInputToNode(GetPlaced()->GetType(), "chopping board") == "NULL") return;
         GetPlaced()->SetState("chopped");
         GetPlaced()->SetType(recipes.ApplyInputToNode(GetPlaced()->GetType(), "chopping board"));
-        GetPlaced()->SetDimensions(45.f, 45.f);
     }
 }
 
@@ -129,7 +179,7 @@ void BaseItem::CombineItems()
 // Creates a new object of a given type
 BaseItem* BaseItem::CreateCombinedItem(std::string& type)
 {
-    return new Ingredient({ { "default", dishTextures[type] } }, type);
+    return new Ingredient(dishTextures[type], type);
 }
 
 // Handles drawing and main logic for items
@@ -278,11 +328,7 @@ Tool::Tool(std::map<std::string, Texture2D> textures, std::string type, float wi
 
 bool Tool::CanPlace(std::string type) const
 {   
-    bool itemAllowed = false;
-    for (auto item : itemFilter) {
-        if (item == type) itemAllowed = true;
-    }
-    if (itemAllowed && itemsPlaced[0] == nullptr) return 1;
-
+    if (itemsPlaced[0] != nullptr) return 0;
+    else if (recipes.ApplyInputToNode(type, GetType()) != "NULL") return 1;
     return 0;
 }

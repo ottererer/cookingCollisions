@@ -16,7 +16,6 @@
 int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
     std::vector<Order*>& orders,float& gameTimer, int& score)
 {
-    std::cout << "Pluh" << std::endl;
     int newItem = -1;  // Initialises the new item variable to null
 
     // Iterates through every currently existing item
@@ -217,7 +216,8 @@ int main() {
 
     Player player(Vector2{ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
-    Order::AddType({ "tomato sandwich" });
+    Order::AddType({ "caramel energy cube", "spicy frost bomb", "protein salad",
+                    "liquid flame soup", "frosted energy treat"});
 
     std::vector<Order*> orders;
     orders.push_back(new Order);  // Initially adds an order to the queue
@@ -245,20 +245,39 @@ int main() {
     plateTextures["default"] = BaseItem::LoadTexture("assets/Plate.png");
     textures["plate"] = plateTextures;
 
-    std::map<std::string, Texture2D> tomatoTextures;
-    tomatoTextures["default"] = BaseItem::LoadTexture("assets/SpiceParticle.png");
-    tomatoTextures["chopped"] = BaseItem::LoadTexture("assets/Tomato_Chopped_Alt.png");
-    textures["tomato"] = tomatoTextures;
+    std::map<std::string, Texture2D> sweetCrystalTextures;
+    sweetCrystalTextures["default"] = BaseItem::LoadTexture("assets/SweetCrystal.png");
+    sweetCrystalTextures["cooked"] = BaseItem::LoadTexture("assets/CaramelEssence.png");
+    sweetCrystalTextures["chopped"] = BaseItem::LoadTexture("assets/SugarShards.png");
+    textures["sweet crystal"] = sweetCrystalTextures;
 
-    std::map<std::string, Texture2D> pattyTextures;
-    pattyTextures["default"] = BaseItem::LoadTexture("assets/SweetCrystal.png");
-    pattyTextures["cooked"] = BaseItem::LoadTexture("assets/CaramelEssence.png");
-    pattyTextures["burnt"] = BaseItem::LoadTexture("assets/Patty_Burnt.png");
-    textures["patty"] = pattyTextures;
+    std::map<std::string, Texture2D> spiceParticleTextures;
+    spiceParticleTextures["default"] = BaseItem::LoadTexture("assets/SpiceParticle.png");
+    textures["spice particle"] = spiceParticleTextures;
 
-    std::map<std::string, Texture2D> breadTextures;
-    breadTextures["default"] = BaseItem::LoadTexture("assets/EnergyParticle.png");
-    textures["bread"] = breadTextures;
+    std::map<std::string, Texture2D> energyParticleTextures;
+    energyParticleTextures["default"] = BaseItem::LoadTexture("assets/EnergyParticle.png");
+    textures["energy particle"] = energyParticleTextures;
+
+    std::map<std::string, Texture2D> liquidEssenceTextures;
+    liquidEssenceTextures["default"] = BaseItem::LoadTexture("assets/LiquidEssence.png");
+    textures["liquid essence"] = liquidEssenceTextures;
+
+    std::map<std::string, Texture2D> proteinOrbTextures;
+    proteinOrbTextures["default"] = BaseItem::LoadTexture("assets/ProteinOrb.png");
+    textures["protein orb"] = proteinOrbTextures;
+
+    std::map<std::string, Texture2D> vegetableCoreTextures;
+    vegetableCoreTextures["default"] = BaseItem::LoadTexture("assets/VegetableCore.png");
+    textures["vegetable core"] = vegetableCoreTextures;
+
+    std::map<std::string, Texture2D> aromaSphereTextures;
+    aromaSphereTextures["default"] = BaseItem::LoadTexture("assets/AromaSphere.png");
+    textures["aroma sphere"] = aromaSphereTextures;
+
+    std::map<std::string, Texture2D> coolingShardTextures;
+    coolingShardTextures["default"] = BaseItem::LoadTexture("assets/CoolingShard.png");
+    textures["cooling shard"] = coolingShardTextures;
     // =============================================================================================
 
     // Adds individual items
@@ -275,10 +294,15 @@ int main() {
     counter.GetUnits()[0].SetType("delivery");
     counter.GetUnits()[1].SetType("delivery");
     counter.GetUnits()[2].SetType("bin");
-    counter.GetUnits()[18].SetType("source", "tomato");
-    counter.GetUnits()[17].SetType("source", "bread");
-    counter.GetUnits()[16].SetType("source", "patty");
+    counter.GetUnits()[18].SetType("source", "sweet crystal");
+    counter.GetUnits()[17].SetType("source", "energy particle");
+    counter.GetUnits()[16].SetType("source", "spice particle");
     counter.GetUnits()[15].SetType("source", "plate");
+    counter.GetUnits()[14].SetType("source", "liquid essence");
+    counter.GetUnits()[13].SetType("source", "protein orb");
+    counter.GetUnits()[12].SetType("source", "vegetable core");
+    counter.GetUnits()[11].SetType("source", "aroma sphere");
+    counter.GetUnits()[10].SetType("source", "cooling shard");
 
     int index = 0;
     for (int i = 0; i < items.size(); i++) {
