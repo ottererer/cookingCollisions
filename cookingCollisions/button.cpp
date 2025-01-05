@@ -24,10 +24,10 @@ bool Button::CheckHovering()
 // Handles logic and drawing the button
 void Button::Tick()
 {
-	Color color = WHITE; // By default sets the colour to white
+	Color color = BEIGE; // By default sets the colour to white
 	isPressed = false;
 	if (CheckHovering()) {
-		color = GRAY;  // If the button is hovered, update its colour
+		color = BROWN;  // If the button is hovered, update its colour
 		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) isPressed = true; // If the button is pressed, set a flag
 	}
 

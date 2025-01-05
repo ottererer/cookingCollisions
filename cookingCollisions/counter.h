@@ -20,13 +20,13 @@ public:
 private:
     std::vector<CounterUnit> counterUnits;
     std::vector<std::vector<bool>> tileMap = {
-        {false, false, false, true, true, false, false, false},
+        {false, false, true, true, true, true, false, false},
         {false, false, false, false, false, false, false, false},
-        {false, true, true, false, false, true, true, false},
-        {false, true, true, false, false, true, true, true},
-        {false, true, true, false, false, false, false, true},
-        {false, true, true, false, false, true, true, true},
-        {false, false, false, false, false, false, false, false},
+        {true, true, false, true, true, false, true, true},
+        {true, true, false, true, true, false, true, true},
+        {true, false, false, false, false, false, false, true},
+        {true, true, false, true, true, false, true, true},
+        {true, true, false, true, true, false, true, true},
         {false, false, false, false, false, false, false, false},
     };
 };

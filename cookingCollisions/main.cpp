@@ -153,7 +153,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     // Resets the time, and determines the time until the next order appears
     if (timeSinceOrder >= timeToNext) {
         timeSinceOrder = 0;
-        timeToNext = 20.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+        timeToNext = 25.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
         orders.push_back(new Order);
     }
 
@@ -171,10 +171,16 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
 }
 
 // Handles drawing and some logic in the menu
-void drawMenu(std::string& gameState, std::vector<Button*>& buttons)
+void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highScore)
 {
     BeginDrawing();
-    ClearBackground(WHITE);
+    ClearBackground(BEIGE);
+
+    DrawText("Recipe For", winWidth / 2.f - MeasureText("Recipe For", 100) / 2, 100.f, 100, BLACK);
+    DrawText("Disaster", winWidth / 2.f - MeasureText("Disaster", 100) / 2, 220.f, 100, BLACK);
+    
+    std::string highScoreText = "Session best: " + std::to_string(highScore);
+    DrawText(highScoreText.c_str(), winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2, 700, 60, BLACK);
 
     // Draws all buttons
     for (Button* button : buttons) {
@@ -190,12 +196,27 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons)
 }
 
 // Handles drawing and some logic for the end screen
-void drawEnd()
+void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score)
 {
     BeginDrawing();
-    ClearBackground(BLACK);
+    ClearBackground(BEIGE);
 
-    DrawText("You Lose!", static_cast<int>(400.f - MeasureText("You Lose!", 100) / 2.f), 300, 100, WHITE);
+    DrawText("You Lose!", static_cast<int>(400.f - MeasureText("You Lose!", 100) / 2.f), 100, 100, WHITE);
+
+    std::string scoreText = "Score: " + std::to_string(score);
+    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 700, 60, BLACK);
+
+    for (Button* button : buttons) {
+        button->Tick();
+        if (button->GetPressed()) {
+            if (button->GetLabel() == "Restart") {
+                gameState = "main";
+            }
+            else if (button->GetLabel() == "Main Menu") {
+                gameState = "menu";
+            }
+        }
+    }
 
     EndDrawing();
 }
@@ -207,15 +228,21 @@ int main() {
 
     std::string gameState = "menu";  // Initialises the game state to the menu
 
-    std::vector<Button*> buttons;
-    buttons.push_back(new Button("Start", { 150.f, 100.f }, { 500.f, 100.f }, 10.f));
+    std::vector<Button*> startButtons;
+    startButtons.push_back(new Button("Play", { 150.f, 400.f }, { 500.f, 100.f }, 10.f));
+
+    std::vector<Button*> endButtons;
+    endButtons.push_back(new Button("Restart", { 150.f, 350.f }, { 500.f, 100.f }, 10.f));
+    endButtons.push_back(new Button("Main Menu", { 150.f, 500.f }, { 500.f, 100.f }, 10.f));
+
+    int highScore = 0;
 
     // Initialises values relating to the game loop
     int score = 0;
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 20.f;
+    float timeToNext = 25.f;
 
     Player player(Vector2{ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
@@ -232,6 +259,7 @@ int main() {
     // =============================================================================================
     std::unordered_map<std::string, std::map<std::string, Texture2D>> textures;
     std::vector<Texture2D> recipeTextures;
+    std::unordered_map<std::string, Texture2D> orderTextures;
 
     std::map<std::string, Texture2D> nullTextures;
     nullTextures["default"] = BaseItem::LoadTexture("assets/NULL.png");
@@ -288,13 +316,22 @@ int main() {
     recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookProteinSalad.png"));
     recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookLiquidFlameSoup.png"));
     recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookFrostedEnergyTreat.png"));
+
+    orderTextures["caramel energy cube"] = BaseItem::LoadTexture("assets/CaramelEnergyCube.png");
+    orderTextures["spicy frost bomb"] = BaseItem::LoadTexture("assets/SpicyFrostBomb.png");
+    orderTextures["protein salad"] = BaseItem::LoadTexture("assets/ProteinSalad.png");
+    orderTextures["liquid flame soup"] = BaseItem::LoadTexture("assets/LiquidFlameSoup.png");
+    orderTextures["frosted energy treat"] = BaseItem::LoadTexture("assets/FrostedEnergyTreat.png");
     // =============================================================================================
 
     RecipeBook recipeBook(recipeTextures);
+    Order::SetupOrders(orderTextures);
 
     // Adds individual items
     std::vector<BaseItem*> items;
     items.push_back(new Tool(choppingBoardTextures, "chopping board"));
+    items.push_back(new Tool(choppingBoardTextures, "chopping board"));
+    items.push_back(new Tool(fryingPanTextures, "frying pan", 120.f, 120.f));
     items.push_back(new Tool(fryingPanTextures, "frying pan", 120.f, 120.f));
 
     // Sets the types of the counters
@@ -303,27 +340,25 @@ int main() {
     // Source = infinite supply of the item specified
     Counter counter;
     counter.CreateCounter();
-    counter.GetUnits()[0].SetType("delivery");
     counter.GetUnits()[1].SetType("delivery");
-    counter.GetUnits()[2].SetType("bin");
-    counter.GetUnits()[18].SetType("source", "sweet crystal");
-    counter.GetUnits()[17].SetType("source", "energy particle");
-    counter.GetUnits()[16].SetType("source", "spice particle");
-    counter.GetUnits()[15].SetType("source", "plate");
-    counter.GetUnits()[14].SetType("source", "liquid essence");
-    counter.GetUnits()[13].SetType("source", "protein orb");
-    counter.GetUnits()[12].SetType("source", "vegetable core");
-    counter.GetUnits()[11].SetType("source", "aroma sphere");
-    counter.GetUnits()[10].SetType("source", "cooling shard");
+    counter.GetUnits()[2].SetType("delivery");
+    counter.GetUnits()[16].SetType("bin");
+    counter.GetUnits()[17].SetType("bin");
+    counter.GetUnits()[0].SetType("source", "plate");
+    counter.GetUnits()[3].SetType("source", "plate");
+    counter.GetUnits()[6].SetType("source", "sweet crystal");
+    counter.GetUnits()[7].SetType("source", "energy particle");
+    counter.GetUnits()[12].SetType("source", "spice particle");
+    counter.GetUnits()[13].SetType("source", "liquid essence");
+    counter.GetUnits()[20].SetType("source", "protein orb");
+    counter.GetUnits()[21].SetType("source", "vegetable core");
+    counter.GetUnits()[26].SetType("source", "aroma sphere");
+    counter.GetUnits()[27].SetType("source", "cooling shard");
 
-    int index = 0;
-    for (int i = 0; i < items.size(); i++) {
-        while (counter.GetUnits()[index].GetType() != "default") {
-            index++;
-        }
-        counter.GetUnits()[index].AddItem(items[i]);
-        index++;
-    }
+    counter.GetUnits()[4].AddItem(items[0]);
+    counter.GetUnits()[5].AddItem(items[1]);
+    counter.GetUnits()[8].AddItem(items[2]);
+    counter.GetUnits()[9].AddItem(items[3]);
 
     bool running = true;
 
@@ -343,7 +378,7 @@ int main() {
         
         // Logic if the game is on the menu
         if (gameState == "menu") {
-            drawMenu(gameState, buttons);
+            drawMenu(gameState, startButtons, highScore);
         }
 
         // Logic if the game is in the main sequence
@@ -373,13 +408,14 @@ int main() {
 
             // If time runs out, end the game
             if (gameTimer <= 0.f) {
+                if (score > highScore) highScore = score;
                 gameState = "end";
             }
         }
 
         // Logic if the game is at the end
         else if (gameState == "end") {
-            drawEnd();
+            drawEnd(gameState, endButtons, score);
         }
     }
 

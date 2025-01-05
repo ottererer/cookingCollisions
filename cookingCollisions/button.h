@@ -15,6 +15,7 @@ public:
 
 	// Getters
 	bool GetPressed() { return isPressed; }
+	std::string GetLabel() { return label; }
 
 private:
 	std::string label;
