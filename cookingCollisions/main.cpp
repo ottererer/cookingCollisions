@@ -16,6 +16,7 @@
 int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
     std::vector<Order*>& orders,float& gameTimer, int& score)
 {
+    std::cout << "Yuh" << std::endl;
     int newItem = -1;  // Initialises the new item variable to null
 
     // Iterates through every currently existing item
