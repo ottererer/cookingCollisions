@@ -137,6 +137,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="order.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="recipeBook.cpp" />
     <ClCompile Include="recipeGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +148,7 @@
     <ClInclude Include="counterUnit.h" />
     <ClInclude Include="order.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="recipeBook.h" />
     <ClInclude Include="recipeGraph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

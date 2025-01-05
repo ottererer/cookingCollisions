@@ -11,6 +11,7 @@
 #include "items.h"
 #include "order.h"
 #include "button.h"
+#include "recipeBook.h"
 
 // Handles events related to dishes, such as removing, combining, and serving items
 int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
@@ -69,7 +70,7 @@ int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& ordere
 
 // Handles drawing and some logic during the main sequence
 void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, float& timeSinceOrder, float& timeToNext,
-    Player& player, Counter& counter, std::vector<BaseItem*>& items, std::vector<Order*>& orders)
+    Player& player, Counter& counter, std::vector<BaseItem*>& items, std::vector<Order*>& orders, RecipeBook& recipeBook)
 {
     BeginDrawing();
     ClearBackground(BROWN);
@@ -164,6 +165,8 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
         }
     }
 
+    recipeBook.Tick();
+
     EndDrawing();
 }
 
@@ -228,6 +231,7 @@ int main() {
     // Sets up all textures to be used
     // =============================================================================================
     std::unordered_map<std::string, std::map<std::string, Texture2D>> textures;
+    std::vector<Texture2D> recipeTextures;
 
     std::map<std::string, Texture2D> nullTextures;
     nullTextures["default"] = BaseItem::LoadTexture("assets/NULL.png");
@@ -278,7 +282,15 @@ int main() {
     std::map<std::string, Texture2D> coolingShardTextures;
     coolingShardTextures["default"] = BaseItem::LoadTexture("assets/CoolingShard.png");
     textures["cooling shard"] = coolingShardTextures;
+
+    recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookCaramelEnergyCube.png"));
+    recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookSpicyFrostBomb.png"));
+    recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookProteinSalad.png"));
+    recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookLiquidFlameSoup.png"));
+    recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookFrostedEnergyTreat.png"));
     // =============================================================================================
+
+    RecipeBook recipeBook(recipeTextures);
 
     // Adds individual items
     std::vector<BaseItem*> items;
@@ -356,7 +368,8 @@ int main() {
                 }
             }
 
-            drawMain(deltaTime, score, globalTime, gameTimer, timeSinceOrder, timeToNext, player, counter, items, orders);
+            drawMain(deltaTime, score, globalTime, gameTimer, timeSinceOrder, timeToNext, player,
+                    counter, items, orders, recipeBook);
 
             // If time runs out, end the game
             if (gameTimer <= 0.f) {
