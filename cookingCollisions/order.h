@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <random>
-#include <raylib.h>
+#include "raylib.h"
 #include <unordered_map>
 #include "config.h"
 

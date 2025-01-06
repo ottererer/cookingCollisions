@@ -1,7 +1,7 @@
 #pragma once
 
 #include "config.h"
-#include <raylib.h>
+#include "raylib.h"
 #include <string>
 #include <iostream>
 

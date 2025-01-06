@@ -1,6 +1,6 @@
 #pragma once
 
-#include <raylib.h>
+#include "raylib.h"
 
 // Sets the dimensions of the window
 const int winWidth = 800;
