@@ -40,7 +40,7 @@ bool CounterUnit::CanPlace(std::string type) const
 {
     // If the item being placed is compatible with what is already placed
     if (itemsPlaced[0] == nullptr) return 1;
-    else if (recipes.FindCommonNode(itemsPlaced[0]->GetType(), type) != "NULL") return 1;
+    else if (recipes.FindCommonNode(itemsPlaced[0]->GetType(), type) != "NULL" && type != itemsPlaced[0]->GetType()) return 1;
 
     return 0;
 }

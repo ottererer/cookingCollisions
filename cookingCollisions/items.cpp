@@ -200,13 +200,6 @@ void BaseItem::Tick(float deltaTime)
                     GetPlaced()->SetType(recipes.ApplyInputToNode(GetPlaced()->GetType(), "frying pan"));
                     ResetTimer();
                 }
-
-                // Otherwise extend the timer, and burn it
-                else if (itemTimer >= 8.f) {
-                    GetPlaced()->SetState("burnt");
-                    GetPlaced()->SetType(recipes.ApplyInputToNode(GetPlaced()->GetType(), "frying pan"));;
-                    ResetTimer();
-                }
             }
             // If the item cannot be fried, reset the timer
             else if (!GetPlaced()->CanFry(GetPlaced()->GetType())) ResetTimer();
@@ -254,7 +247,7 @@ bool Plate::CanPlace(std::string type) const
     if (type != "plate") {
         if (itemsPlaced[0] == nullptr) return 1;
         else {
-            if (recipes.FindCommonNode(GetPlaced()->GetType(), type) != "NULL") return 1;
+            if (recipes.FindCommonNode(GetPlaced()->GetType(), type) != "NULL" && type != itemsPlaced[0]->GetType()) return 1;
         }
     }
 

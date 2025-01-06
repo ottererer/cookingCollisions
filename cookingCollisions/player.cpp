@@ -148,7 +148,7 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
                     }
 
                     // If there is nothing placed
-                    else if (itemPlaced->CanPlace(itemHeld->GetPlaced()->GetType())) {
+                    else if (itemHeld->GetPlaced() != nullptr && itemPlaced->CanPlace(itemHeld->GetPlaced()->GetType())) {
                         itemPlaced->AddItem(itemHeld->GetPlaced());
                         itemHeld->ClearItems();
 
@@ -189,6 +189,7 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
             auto* itemPlaced = unit->GetPlaced();
             if (itemPlaced == nullptr) continue;
             if (itemPlaced->GetPlaced() == nullptr) continue;
+            if (itemHeld != nullptr) continue;
             itemPlaced->HandleCooking();
         }
     }

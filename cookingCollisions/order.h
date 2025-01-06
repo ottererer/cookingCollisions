@@ -32,7 +32,7 @@ public:
 private:
 	std::string dish;
 	int fontSize = 20;
-	float maxTime = 60.f;
+	float maxTime = 30.f;
 	float timeRemaining = maxTime;
 	int orderNum = 0;
 

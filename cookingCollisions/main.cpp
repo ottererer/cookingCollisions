@@ -55,7 +55,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
                         // Adds time and score
                         gameTimer += 20.f;
                         score += 10;
-                        if (gameTimer > 180.f) gameTimer = 180.f; // Ensures the time does not go above 180 seconds
+                        if (gameTimer > 150.f) gameTimer = 150.f; // Ensures the time does not go above 180 seconds
                     }
 
                     // Otherwise increments the index
@@ -177,7 +177,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     if (timeSinceOrder >= timeToNext) {
         if (orders.size() < 5) {
             timeSinceOrder = 0;
-            timeToNext = 25.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+            timeToNext = 20.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
             orders.push_back(new Order);
         }
     }
@@ -194,9 +194,9 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     DrawText("Pickup/place item - E", 20, 670, 20, BLACK);
     DrawText("Pickup/place item from plate - SHIFT + E", 20, 690, 20, BLACK);
     DrawText("Chop item - F", 20, 710, 20, BLACK);
-    DrawText("Open recipe book - Q", 20, 730, 20, BLACK);
+    DrawText("Open recipe book - R", 20, 730, 20, BLACK);
     DrawText("Cycle page (recipe book) - LEFT / RIGHT", 20, 750, 20, BLACK);
-    DrawText("Mute/unmute music - P", 20, 770, 20, BLACK);
+    DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
 
     recipeBook.Tick();
 
@@ -212,7 +212,8 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highSco
     DrawText("Recipe For", winWidth / 2.f - MeasureText("Recipe For", 100) / 2, 100.f, 100, BLACK);
     DrawText("Disaster", winWidth / 2.f - MeasureText("Disaster", 100) / 2, 220.f, 100, BLACK);
 
-    DrawText("Start game - ENTER", 20, 770, 20, BLACK);
+    DrawText("Start game - ENTER", 20, 750, 20, BLACK);
+    DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
     
     std::string highScoreText = "Session best: " + std::to_string(highScore);
     DrawText(highScoreText.c_str(), winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2, 600, 60, BLACK);
@@ -231,18 +232,23 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highSco
 }
 
 // Handles drawing and some logic for the end screen
-void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score)
+void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score, float timeLived)
 {
     BeginDrawing();
     ClearBackground(BEIGE);
 
     DrawText("You Lose!", static_cast<int>(400.f - MeasureText("You Lose!", 100) / 2.f), 100, 100, WHITE);
 
-    DrawText("Restart - R", 20, 750, 20, BLACK);
-    DrawText("Main menu - ENTER", 20, 770, 20, BLACK);
+    DrawText("Restart - R", 20, 730, 20, BLACK);
+    DrawText("Main menu - ENTER", 20, 750, 20, BLACK);
+    DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
 
     std::string scoreText = "Score: " + std::to_string(score);
-    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 600, 60, BLACK);
+    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 530, 60, BLACK);
+
+    char timerText[50];
+    sprintf_s(timerText, "Time: %.1f", timeLived);
+    DrawText(timerText, winWidth / 2.f - MeasureText(timerText, 40) / 2, 600, 40, BLACK);
 
     for (Button* button : buttons) {
         button->Tick();
@@ -270,7 +276,7 @@ int main() {
 
     Music music = LoadMusicStream("assets/LaMusique.mp3");
     SetMasterVolume(0.4f);
-    bool paused = false;
+    bool muted = false;
 
     PlayMusicStream(music);
 
@@ -280,8 +286,8 @@ int main() {
     startButtons.push_back(new Button("Play", { 150.f, 400.f }, { 500.f, 100.f }, 10.f));
 
     std::vector<Button*> endButtons;
-    endButtons.push_back(new Button("Restart", { 150.f, 350.f }, { 500.f, 100.f }, 10.f));
-    endButtons.push_back(new Button("Main Menu", { 150.f, 500.f }, { 500.f, 100.f }, 10.f));
+    endButtons.push_back(new Button("Restart", { 150.f, 250.f }, { 500.f, 100.f }, 10.f));
+    endButtons.push_back(new Button("Main Menu", { 150.f, 400 }, { 500.f, 100.f }, 10.f));
 
     int highScore = 0;
 
@@ -290,7 +296,10 @@ int main() {
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 25.f;
+    float timeToNext = 20.f;
+    
+    int roundScore = 0;
+    float roundTime = 0.f;
 
     Player player({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
@@ -419,12 +428,12 @@ int main() {
         float fps = GetFPS();
         UpdateMusicStream(music);
 
-        if (IsKeyPressed(KEY_P))
+        if (IsKeyPressed(KEY_M))
         {
-            paused = !paused;
+            muted = !muted;
 
-            if (paused) PauseMusicStream(music);
-            else ResumeMusicStream(music);
+            if (muted) SetMasterVolume(0.f);
+            else SetMasterVolume(0.4f);
         }
 
         // Displays the framerate as the window title
@@ -467,6 +476,9 @@ int main() {
             if (gameTimer <= 0.f) {
                 if (score > highScore) highScore = score;
                 gameState = "end";
+                roundScore = score;
+                roundTime = globalTime;
+
                 player.SetHolding(nullptr);
                 player.SetPos({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
                 player.SetAngle(0.f);
@@ -491,7 +503,7 @@ int main() {
                 globalTime = 0.f;
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
-                timeToNext = 25.f;
+                timeToNext = 20.f;
 
                 orders.clear();
                 orders.push_back(new Order);
@@ -500,7 +512,7 @@ int main() {
 
         // Logic if the game is at the end
         else if (gameState == "end") {
-            drawEnd(gameState, endButtons, score);
+            drawEnd(gameState, endButtons, roundScore, roundTime);
         }
     }
 
