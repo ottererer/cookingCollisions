@@ -10,7 +10,7 @@ RecipeBook::RecipeBook(std::vector<Texture2D> textures) :
 // Handles logic and drawing
 void RecipeBook::Tick()
 {
-	if (IsKeyPressed(KEY_R)) isShowing = !isShowing;
+	if (IsKeyPressed(KEY_Q)) isShowing = !isShowing;
 
     // Only performs logic if shown
 	if (isShowing) {

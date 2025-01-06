@@ -177,7 +177,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     if (timeSinceOrder >= timeToNext) {
         if (orders.size() < 5) {
             timeSinceOrder = 0;
-            timeToNext = 30.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+            timeToNext = 25.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
             orders.push_back(new Order);
         }
     }
@@ -192,10 +192,11 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
 
     DrawText("Movement - W/A/S/D", 20, 650, 20, BLACK);
     DrawText("Pickup/place item - E", 20, 670, 20, BLACK);
-    DrawText("Pickup item from plate - SHIFT + E", 20, 690, 20, BLACK);
+    DrawText("Pickup/place item from plate - SHIFT + E", 20, 690, 20, BLACK);
     DrawText("Chop item - F", 20, 710, 20, BLACK);
-    DrawText("Open recipe book", 20, 730, 20, BLACK);
+    DrawText("Open recipe book - Q", 20, 730, 20, BLACK);
     DrawText("Cycle page (recipe book) - LEFT / RIGHT", 20, 750, 20, BLACK);
+    DrawText("Mute/unmute music - P", 20, 770, 20, BLACK);
 
     recipeBook.Tick();
 
@@ -210,9 +211,11 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highSco
 
     DrawText("Recipe For", winWidth / 2.f - MeasureText("Recipe For", 100) / 2, 100.f, 100, BLACK);
     DrawText("Disaster", winWidth / 2.f - MeasureText("Disaster", 100) / 2, 220.f, 100, BLACK);
+
+    DrawText("Start game - ENTER", 20, 770, 20, BLACK);
     
     std::string highScoreText = "Session best: " + std::to_string(highScore);
-    DrawText(highScoreText.c_str(), winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2, 700, 60, BLACK);
+    DrawText(highScoreText.c_str(), winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2, 600, 60, BLACK);
 
     // Draws all buttons
     for (Button* button : buttons) {
@@ -235,8 +238,11 @@ void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score)
 
     DrawText("You Lose!", static_cast<int>(400.f - MeasureText("You Lose!", 100) / 2.f), 100, 100, WHITE);
 
+    DrawText("Restart - R", 20, 750, 20, BLACK);
+    DrawText("Main menu - ENTER", 20, 770, 20, BLACK);
+
     std::string scoreText = "Score: " + std::to_string(score);
-    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 700, 60, BLACK);
+    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 600, 60, BLACK);
 
     for (Button* button : buttons) {
         button->Tick();
@@ -249,6 +255,9 @@ void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score)
             }
         }
     }
+
+    if (IsKeyPressed(KEY_ENTER)) gameState = "menu";
+    else if (IsKeyPressed(KEY_R)) gameState = "main";
 
     EndDrawing();
 }
@@ -281,7 +290,7 @@ int main() {
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 30.f;
+    float timeToNext = 25.f;
 
     Player player({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
@@ -482,7 +491,7 @@ int main() {
                 globalTime = 0.f;
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
-                timeToNext = 30.f;
+                timeToNext = 25.f;
 
                 orders.clear();
                 orders.push_back(new Order);
