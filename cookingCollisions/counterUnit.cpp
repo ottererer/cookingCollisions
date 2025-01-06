@@ -1,6 +1,8 @@
 #include "counterUnit.h"
 #include "config.h"
 
+RecipeGraph& CounterUnit::recipes = RecipeGraph::GetInstance();
+
 // Constructor for the CounterUnit class
 CounterUnit::CounterUnit(Vector2 pos, std::array<bool, 4> edges) :
     screenPos(pos)
@@ -33,9 +35,59 @@ void CounterUnit::DrawSelected()
     DrawRectangleLinesEx(selectedRec, outlineThickness, WHITE);
 }
 
+// Checks if an item can be placed on a given unit
+bool CounterUnit::CanPlace(std::string type) const
+{
+    // If the item being placed is compatible with what is already placed
+    if (itemsPlaced[0] == nullptr) return 1;
+    else if (recipes.FindCommonNode(itemsPlaced[0]->GetType(), type) != "NULL") return 1;
+
+    return 0;
+}
+
+// Removes the current item and/or anything placed on it
+void CounterUnit::RemoveItems()
+{
+    for (auto item : itemsPlaced) {
+        if (item != nullptr)
+            item->RemoveItems();  // Removes any item placed
+    }
+    ClearPlaced();
+}
+
+// Handles logic for combining two items
+void CounterUnit::CombineItems()
+{
+    if (itemsPlaced[0] == nullptr || itemsPlaced[1] == nullptr) return;  // If either item is empty, exit
+
+    // Get the name of both items
+    std::string type1 = itemsPlaced[0]->GetType();
+    std::string type2 = itemsPlaced[1]->GetType();
+
+    std::string combinedType = recipes.FindCommonNode(type1, type2);  // Find the result of combining the two items
+
+    // If FindCommonNode returns NULL, the items cannot be combined
+    if (combinedType != "NULL") {
+        combineItems = true;
+        RemoveItems();
+        ClearPlaced();
+        BaseItem* newItem = CreateCombinedItem(combinedType);  // Creates a new object based on the result of combining the items
+        newItem->SetDimensions(50.f, 50.f);
+        if (newItem) AddItem(newItem);  // If the new item as created successfully, place it on the current object
+    }
+}
+
+// Creates a new object of a given type
+BaseItem* CounterUnit::CreateCombinedItem(std::string& type)
+{
+    return new Ingredient(BaseItem::GetDishTextures()[type], type);
+}
+
 // Handles logic and drawing the units
 void CounterUnit::Tick(float deltaTime)
 {
+    CombineItems();
+
     // Handles drawing additional lines to represent edges of the counter
     if (counterEdges[0]) {
         DrawLineEx(screenPos, Vector2{ screenPos.x + counterWidth, screenPos.y }, edgeThickness, BLACK);

@@ -64,10 +64,19 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
             if (!unit->GetSelected()) continue;
             auto* itemPlaced = unit->GetPlaced();
 
+            // Special interactions when holding shift
             if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
-                if (itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
+                // If looking at a plate, with nothing in your hands
+                if (itemHeld == nullptr && itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
                     SetHolding(itemPlaced->GetPlaced());
                     itemPlaced->ClearItems();
+                }
+
+                else if (itemHeld != nullptr && itemHeld->GetType() == "plate" && itemHeld->GetPlaced() != nullptr) {
+                    if (itemPlaced == nullptr) {
+                        unit->AddItem(itemHeld->GetPlaced());
+                        itemHeld->ClearItems();
+                    }
                 }
             }
 
@@ -111,7 +120,7 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
             }
 
             // If there is nothing currently placed
-            else if (itemPlaced == nullptr) {
+            else if (unit->CanPlace(itemHeld->GetType())) {
                 unit->AddItem(itemHeld);
                 SetHolding(nullptr);
             }
@@ -120,8 +129,56 @@ void Player::HandleItems(std::vector<CounterUnit*> units)
             else if (itemPlaced->CanPlace(itemHeld->GetType())) {
                 itemPlaced->AddItem(itemHeld);
                 SetHolding(nullptr);
+
                 if (itemPlaced->GetType() == "frying pan") {
                     itemPlaced->ResetTimer();
+                }
+            }
+
+            // If holding a plate with something on it
+            else if (itemHeld->GetType() == "plate" && itemPlaced != nullptr) {
+                // If the item is a chopping board or frying pan
+                if ((itemPlaced->GetType() == "frying pan" || itemPlaced->GetType() == "chopping board")) {
+                    // If there is something placed
+                    if (itemPlaced->GetPlaced() != nullptr) {
+                        if (itemHeld->CanPlace(itemPlaced->GetPlaced()->GetType())) {
+                            itemHeld->AddItem(itemPlaced->GetPlaced());
+                            itemPlaced->ClearItems();
+                        }
+                    }
+
+                    // If there is nothing placed
+                    else if (itemPlaced->CanPlace(itemHeld->GetPlaced()->GetType())) {
+                        itemPlaced->AddItem(itemHeld->GetPlaced());
+                        itemHeld->ClearItems();
+
+                        if (itemPlaced->GetType() == "frying pan") {
+                            itemPlaced->ResetTimer();
+                        }
+                    }
+                }
+
+                // If the item placed can be placed on the plate
+                else if (itemHeld->CanPlace(itemPlaced->GetType())) {
+                    itemHeld->AddItem(itemPlaced);
+                    unit->ClearPlaced();
+                }
+
+                // If both the item held and the item placed is a plate
+                else if (itemPlaced->GetType() == "plate") {
+                    // If there is an item on both plates, add the held one to the placed one if possible
+                    if (itemHeld->GetPlaced() != nullptr && itemPlaced->GetPlaced() != nullptr &&
+                        itemPlaced->CanPlace(itemHeld->GetPlaced()->GetType())) {
+                        itemPlaced->AddItem(itemHeld->GetPlaced());
+                        itemHeld->ClearItems();
+                    }
+                    // Otherwise swap the plates
+                    else {
+                        auto* tempPlate = itemHeld;
+                        SetHolding(itemPlaced);
+                        unit->ClearPlaced();
+                        unit->AddItem(tempPlate);
+                    }
                 }
             }
         }

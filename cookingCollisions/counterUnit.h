@@ -14,7 +14,13 @@ public:
     void AddServing(BaseItem* item) { servingItems.push_back(item); }
     void ClearPlaced() { itemsPlaced = { nullptr, nullptr }; }
     void DrawSelected();
+    void RemoveItems();
+    void CombineItems();
+    BaseItem* CreateCombinedItem(std::string& type);
     void Tick(float deltaTime);
+
+    void ResetFlags() { combineItems = false; }
+    bool CanPlace(std::string type) const;
 
     // Getters
     Vector2 GetCentre() { return Vector2{ screenPos.x + counterWidth / 2.f, screenPos.y + counterWidth / 2.f }; }
@@ -24,6 +30,7 @@ public:
     BaseItem* GetPlaced() { return itemsPlaced[0]; }
     std::string GetType() { return unitType; }
     std::string GetSourceType() { return sourceType; }
+    bool GetCombine() { return combineItems; }
 
     // Setters
     void SetSelected(bool state) { isSelected = state; }
@@ -43,4 +50,7 @@ private:
     float counterWidth;
     float outlineThickness = 2.f;
     float edgeThickness = 4.f;
+
+    bool combineItems = false;
+    static RecipeGraph& recipes;
 };

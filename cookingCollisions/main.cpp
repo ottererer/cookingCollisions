@@ -14,10 +14,11 @@
 #include "recipeBook.h"
 
 // Handles events related to dishes, such as removing, combining, and serving items
-int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
-    std::vector<Order*>& orders,float& gameTimer, int& score)
+std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
+    std::vector<Order*>& orders, std::vector<CounterUnit*> units, float& gameTimer, int& score)
 {
-    int newItem = -1;  // Initialises the new item variable to null
+    int newItemPlate = -1;  // Initialises the new item variable to null
+    int newItemUnit = -1;
 
     // Iterates through every currently existing item
     for (auto it = items.begin(); it != items.end();) {
@@ -35,7 +36,7 @@ int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& ordere
 
             // If the current item is flagged to combine items
             else if (currentItem->GetCombine()) {
-                newItem = std::distance(items.begin(), it);  // Gets the index of the current item
+                newItemPlate = std::distance(items.begin(), it);  // Gets the index of the current item
             }
 
             // If the current item is flagged to serve
@@ -65,7 +66,20 @@ int handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& ordere
             ++it;
         }
     }
-    return newItem;
+
+
+    for (auto it = units.begin(); it != units.end();) {
+        CounterUnit* currentUnit = *it;
+
+        if (currentUnit != nullptr) {
+            if (currentUnit->GetCombine()) {
+                newItemUnit = std::distance(units.begin(), it);
+            }
+            it++;
+        }
+    }
+
+    return { {"plate", newItemPlate}, {"unit", newItemUnit} };
 }
 
 // Handles drawing and some logic during the main sequence
@@ -113,20 +127,29 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
         item->Tick(deltaTime);
     }
 
-    int newItem = handleEvents(items, orderedDishes, orders, gameTimer, score);
+    std::unordered_map<std::string, int> newItems = handleEvents(items, orderedDishes, orders,
+                                                                counter.GetUnitsPointers(), gameTimer, score);
     
     // If there is a new item, add the new item to the list
-    if (newItem != -1) {
-        Plate* plate = dynamic_cast<Plate*>(items[newItem]);
+    if (newItems["plate"] != -1) {
+        Plate* plate = dynamic_cast<Plate*>(items[newItems["plate"]]);
         if (plate) {
             items.push_back(plate->GetPlaced());
         }
+    }
+
+    if (newItems["unit"] != -1) {
+        items.push_back(counter.GetUnitsPointers()[newItems["unit"]]->GetPlaced());
     }
 
     player.Draw();
 
     for (BaseItem* item : items) {
         item->ResetFlags();
+    }
+
+    for (CounterUnit* unit : counter.GetUnitsPointers()) {
+        unit->ResetFlags();
     }
 
     // Draws the time to the screen
@@ -166,6 +189,13 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
             orders[i]->Tick(deltaTime);
         }
     }
+
+    DrawText("Movement - W/A/S/D", 20, 650, 20, BLACK);
+    DrawText("Pickup/place item - E", 20, 670, 20, BLACK);
+    DrawText("Pickup item from plate - SHIFT + E", 20, 690, 20, BLACK);
+    DrawText("Chop item - F", 20, 710, 20, BLACK);
+    DrawText("Open recipe book", 20, 730, 20, BLACK);
+    DrawText("Cycle page (recipe book) - LEFT / RIGHT", 20, 750, 20, BLACK);
 
     recipeBook.Tick();
 

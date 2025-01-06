@@ -56,6 +56,7 @@ public:
 	bool GetRemove() { return removeItem; }
 	bool GetServing() { return serveItem; }
 	float GetTime() { return itemTimer; }
+	static std::unordered_map<std::string, std::map<std::string, Texture2D>> GetDishTextures() { return dishTextures; }
 
 	// Setters
 	void SetState(std::string state) { itemState = state; }
