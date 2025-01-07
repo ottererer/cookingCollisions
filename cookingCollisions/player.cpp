@@ -1,7 +1,7 @@
 #include "player.h"
 
 // Works out the angle to a given target
-float Player::AngleToTarget(Vector2 targetPos)
+float Player::AngleToTarget(const Vector2& targetPos)
 {
     float angle = Radians(viewDir);  // Converts the view angle into radians
     Vector2 viewVector = Vector2Normalize(Vector2{ sin(angle), cos(angle) });  // Creates a view vector of size 1
@@ -36,7 +36,7 @@ void Player::DrawArms(float viewDir)
 }
 
 // Determine - if any - which counter unit the player is currently looking at
-void Player::HandleSelect(std::vector<CounterUnit*> units)
+void Player::HandleSelect(const std::vector<CounterUnit*>& units)
 {
     CounterUnit* selectedUnit = nullptr;
     float smallestAngle = 10.f;  // Sets a large initial angle
@@ -57,7 +57,7 @@ void Player::HandleSelect(std::vector<CounterUnit*> units)
 }
 
 // Handles player interactiosn with items
-void Player::HandleItems(std::vector<CounterUnit*> units)
+void Player::HandleItems(const std::vector<CounterUnit*>& units)
 {
     if (IsKeyPressed(KEY_E)) {
         for (auto* unit : units) {
@@ -212,7 +212,7 @@ void Player::CarryItem()
 }
 
 // Checks if and if so how, the player is colliding with a unit
-Vector2 Player::CheckCollisions(std::vector<CounterUnit*> units, float deltaTime)
+Vector2 Player::CheckCollisions(const std::vector<CounterUnit*>& units, float deltaTime)
 {
     // Gets the position of the player last frame
     Vector2 tempPos = Vector2Subtract(screenPos, Vector2Scale(Vector2Normalize(moveDir), moveSpeed * deltaTime));
@@ -246,7 +246,7 @@ Vector2 Player::CheckCollisions(std::vector<CounterUnit*> units, float deltaTime
 }
 
 // Moves the player to resolve any collisions
-void Player::ResolveCollisions(std::vector<CounterUnit*> units, float deltaTime)
+void Player::ResolveCollisions(const std::vector<CounterUnit*>& units, float deltaTime)
 {
     Vector2 collisionEdge = CheckCollisions(units, deltaTime);
     if (collisionEdge != Vector2{ -1.f, -1.f }) {

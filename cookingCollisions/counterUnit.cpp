@@ -4,7 +4,7 @@
 RecipeGraph& CounterUnit::recipes = RecipeGraph::GetInstance();
 
 // Constructor for the CounterUnit class
-CounterUnit::CounterUnit(Vector2 pos, std::array<bool, 4> edges) :
+CounterUnit::CounterUnit(const Vector2& pos, const std::array<bool, 4>& edges) :
     screenPos(pos)
 {
     for (int i = 0; i < 4; ++i) {
@@ -36,7 +36,7 @@ void CounterUnit::DrawSelected()
 }
 
 // Checks if an item can be placed on a given unit
-bool CounterUnit::CanPlace(std::string type) const
+bool CounterUnit::CanPlace(const std::string& type) const
 {
     // If the item being placed is compatible with what is already placed
     if (itemsPlaced[0] == nullptr) return 1;

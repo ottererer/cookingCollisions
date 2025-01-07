@@ -11,7 +11,7 @@ Order::Order()
     dish = availableTypes[RandomNumber(0, availableTypes.size() - 1)];  // Randomly determines which dish to order
 }
 
-void Order::SetupOrders(std::unordered_map<std::string, Texture2D> textures)
+void Order::SetupOrders(const std::unordered_map<std::string, Texture2D>& textures)
 {
     dishTextures = textures;
 }

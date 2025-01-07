@@ -1,7 +1,7 @@
 #include "button.h"
 
 // Constructor for the button class
-Button::Button(std::string name, Vector2 pos, Vector2 dimensions, float thickness) :
+Button::Button(const std::string& name, const Vector2& pos, const Vector2& dimensions, float thickness) :
 label(name),
 screenPos(pos),
 size(dimensions),

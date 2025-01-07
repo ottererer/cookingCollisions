@@ -15,9 +15,9 @@ public:
 	void Tick(float deltaTime);
 	void DrawDish();
 
-	static void SetupOrders(std::unordered_map<std::string, Texture2D> textures);
+	static void SetupOrders(const std::unordered_map<std::string, Texture2D>& textures);
 	static int RandomNumber(int min, int max);
-	static void AddType(std::vector<std::string> types) { for (auto type : types) availableTypes.push_back(type); };
+	static void AddType(const std::vector<std::string>& types) { for (auto type : types) availableTypes.push_back(type); };
 
 	// Getters
 	float GetTime() { return timeRemaining; }
@@ -32,7 +32,7 @@ public:
 private:
 	std::string dish;
 	int fontSize = 20;
-	float maxTime = 30.f;
+	float maxTime = 60.f;
 	float timeRemaining = maxTime;
 	int orderNum = 0;
 

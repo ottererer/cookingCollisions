@@ -13,7 +13,7 @@
 class BaseItem
 {
 public:
-	BaseItem(std::map<std::string, Texture2D> textures, std::string type): itemTextures(textures), itemType(type) {}
+	BaseItem(const std::map<std::string, Texture2D>& textures, std::string type): itemTextures(textures), itemType(type) {}
 	virtual ~BaseItem() = default;
 	static void SetupClass();
 
@@ -23,18 +23,18 @@ public:
 	void ClearTemps() { tempItems = { nullptr, nullptr }; }
 	void ResetTimer() { itemTimer = 0.f; }
 	virtual bool CanPickup() const = 0;
-	virtual bool CanPlace(std::string type) const = 0;
+	virtual bool CanPlace(const std::string& type) const = 0;
 
-	virtual bool CanChop(std::string type) const { return 0; }
-	virtual bool CanFry(std::string type) const { return 0; }
-	virtual bool CanBoil(std::string type) const { return 0; }
+	virtual bool CanChop(const std::string& type) const { return 0; }
+	virtual bool CanFry(const std::string& type) const { return 0; }
+	virtual bool CanBoil(const std::string& type) const { return 0; }
 	virtual bool CanServe() const { return 0; }
-	virtual bool CanServeSuccessfully(std::string type) const { return 0; }
+	virtual bool CanServeSuccessfully(const std::string& type) const { return 0; }
 
 	void HandleCooking();
 	void RemoveItems(bool removeSelf = true, bool removePlaced = true);
 	void CombineItems();
-	BaseItem* CreateCombinedItem(std::string& type);
+	BaseItem* CreateCombinedItem(const std::string& type);
 	void ResetFlags() { removeItem = false; combineItems = false; serveItem = false; }
 	
 
@@ -59,18 +59,18 @@ public:
 	static std::unordered_map<std::string, std::map<std::string, Texture2D>> GetDishTextures() { return dishTextures; }
 
 	// Setters
-	void SetState(std::string state) { itemState = state; }
-	void SetType(std::string type) { itemType = type; }
+	void SetState(const std::string& state) { itemState = state; }
+	void SetType(const std::string& type) { itemType = type; }
 
-	void SetPos(Vector2 pos) { screenPos = pos; }
-	void MovePos(Vector2 pos) { screenPos = Vector2Add(screenPos, pos); }
+	void SetPos(const Vector2& pos) { screenPos = pos; }
+	void MovePos(const Vector2& pos) { screenPos = Vector2Add(screenPos, pos); }
 	void SetRot(float angle) { itemAngle = angle; }
 	void SetDimensions(float width, float height) { itemWidth = width * static_cast<float>(winWidth) / 800.f; itemHeight = height * static_cast<float>(winWidth) / 800.f; }
 	void SetWidth(float width) { itemWidth = width * static_cast<float>(winWidth) / 800.f; }
 	void SetHeight(float height) { itemHeight = height * static_cast<float>(winWidth) / 800.f; }
 	void SetServing(bool serving) { serveItem = serving; }
 
-	static void SetOrderedDishes(std::vector<std::string> dishes) { orderedDishes = dishes; }
+	static void SetOrderedDishes(const std::vector<std::string>& dishes) { orderedDishes = dishes; }
 
 protected:
 	std::vector<std::string> itemFilter;
@@ -99,10 +99,10 @@ private:
 class Plate : public BaseItem
 {
 public:
-	Plate(std::map<std::string, Texture2D> textures, float width = 0.f, float height = 0.f);
+	Plate(const std::map<std::string, Texture2D>& textures, float width = 0.f, float height = 0.f);
 
 	bool CanPickup() const override { return 1; }
-	bool CanPlace(std::string type) const override;
+	bool CanPlace(const std::string& type) const override;
 };
 
 class Ingredient : public BaseItem
@@ -111,19 +111,19 @@ public:
 	Ingredient(std::map<std::string, Texture2D> textures, std::string type, float width = 0.f, float height = 0.f);
 
 	bool CanPickup() const override { return 1; }
-	bool CanPlace(std::string type) const override { return 0; }
-	bool CanChop(std::string type) const override;
-	bool CanFry(std::string type) const override;
-	bool CanBoil(std::string type) const override;
+	bool CanPlace(const std::string& type) const override { return 0; }
+	bool CanChop(const std::string& type) const override;
+	bool CanFry(const std::string& type) const override;
+	bool CanBoil(const std::string& type) const override;
 	bool CanServe() const override;
-	bool CanServeSuccessfully(std::string type) const override;
+	bool CanServeSuccessfully(const std::string& type) const override;
 };
 
 class Tool : public BaseItem
 {
 public:
-	Tool(std::map<std::string, Texture2D> textures, std::string type, float width = 0.f, float height = 0.f);
+	Tool(const std::map<std::string, Texture2D>& textures, const std::string& type, float width = 0.f, float height = 0.f);
 
 	bool CanPickup() const override { return 0; }
-	bool CanPlace(std::string type) const override;
+	bool CanPlace(const std::string& type) const override;
 };

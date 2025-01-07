@@ -9,7 +9,7 @@
 class CounterUnit
 {
 public:
-    CounterUnit(Vector2 pos, std::array<bool, 4> edges);
+    CounterUnit(const Vector2& pos, const std::array<bool, 4>& edges);
     void AddItem(BaseItem* item);
     void AddServing(BaseItem* item) { servingItems.push_back(item); }
     void ClearPlaced() { itemsPlaced = { nullptr, nullptr }; }
@@ -20,7 +20,7 @@ public:
     void Tick(float deltaTime);
 
     void ResetFlags() { combineItems = false; }
-    bool CanPlace(std::string type) const;
+    bool CanPlace(const std::string& type) const;
 
     // Getters
     Vector2 GetCentre() { return Vector2{ screenPos.x + counterWidth / 2.f, screenPos.y + counterWidth / 2.f }; }
@@ -34,7 +34,7 @@ public:
 
     // Setters
     void SetSelected(bool state) { isSelected = state; }
-    void SetType(std::string type, std::string spawnerType = "none") { unitType = type; sourceType = spawnerType; }
+    void SetType(const std::string& type, const std::string& spawnerType = "none") { unitType = type; sourceType = spawnerType; }
 
 private:
     Vector2 screenPos{};

@@ -7,7 +7,7 @@
 class RecipeBook
 {
 public:
-	RecipeBook(std::vector<Texture2D> textures);
+	RecipeBook(const std::vector<Texture2D>& textures);
 	void Tick();
 
 	// Getters

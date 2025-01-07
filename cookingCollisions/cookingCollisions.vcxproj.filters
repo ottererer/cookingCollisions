@@ -71,5 +71,8 @@
     <ClInclude Include="recipeBook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="raylib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

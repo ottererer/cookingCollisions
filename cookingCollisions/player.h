@@ -15,15 +15,15 @@
 class Player
 {
 public:
-    Player(Vector2 pos) : screenPos(pos) {};
-    float DistanceToTarget(Vector2 targetPos) { return Vector2Distance(screenPos, targetPos); }
-    float AngleToTarget(Vector2 targetPos);
+    Player(const Vector2& pos) : screenPos(pos) {};
+    float DistanceToTarget(const Vector2& targetPos) { return Vector2Distance(screenPos, targetPos); }
+    float AngleToTarget(const Vector2& targetPos);
     float Radians(float angle) { return angle * pi / 180.f; }
-    void HandleSelect(std::vector<CounterUnit*> units);
-    void HandleItems(std::vector<CounterUnit*> units);
+    void HandleSelect(const std::vector<CounterUnit*>& units);
+    void HandleItems(const std::vector<CounterUnit*>& units);
     void CarryItem();
-    Vector2 CheckCollisions(std::vector<CounterUnit*>, float deltaTime);
-    void ResolveCollisions(std::vector<CounterUnit*>, float deltaTime);
+    Vector2 CheckCollisions(const std::vector<CounterUnit*>&, float deltaTime);
+    void ResolveCollisions(const std::vector<CounterUnit*>&, float deltaTime);
     void HandleBounds(float deltaTime);
     void DrawArms(float viewDir);
     float ClampPlate(float viewDir, float rotation, float clampTarget);
@@ -35,7 +35,7 @@ public:
     Vector2 GetPos() { return screenPos; }
 
     // Setters
-    void SetPos(Vector2 pos) { screenPos = pos; }
+    void SetPos(const Vector2& pos) { screenPos = pos; }
     void SetHolding(BaseItem* item) { itemHeld = item; }
     void SetAngle(float angle) { viewDir = 0; }
 

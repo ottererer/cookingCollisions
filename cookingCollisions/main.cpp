@@ -14,8 +14,8 @@
 #include "recipeBook.h"
 
 // Handles events related to dishes, such as removing, combining, and serving items
-std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items, std::vector<std::string>& orderedDishes,
-    std::vector<Order*>& orders, std::vector<CounterUnit*> units, float& gameTimer, int& score)
+std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items, const std::vector<std::string>& orderedDishes,
+    std::vector<Order*>& orders, const std::vector<CounterUnit*> units, float& gameTimer, int& score)
 {
     int newItemPlate = -1;  // Initialises the new item variable to null
     int newItemUnit = -1;
@@ -61,7 +61,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
                     // Otherwise increments the index
                     else index++;
                 }
-                if (!found) gameTimer -= 20.f; // Time penalty
+                if (!found) gameTimer -= 15.f; // Time penalty
             }
             ++it;
         }
@@ -168,7 +168,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
         // If the timer for an order runs out, impose time penalty
         if (currentItem->GetTime() <= 0.f) {
             it = orders.erase(it);
-            gameTimer -= 20.f;
+            gameTimer -= 15.f;
         }
         else ++it;
     }
@@ -177,7 +177,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     if (timeSinceOrder >= timeToNext) {
         if (orders.size() < 5) {
             timeSinceOrder = 0;
-            timeToNext = 20.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+            timeToNext = 40.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
             orders.push_back(new Order);
         }
     }
@@ -296,7 +296,7 @@ int main() {
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 20.f;
+    float timeToNext = 40.f;
     
     int roundScore = 0;
     float roundTime = 0.f;
@@ -503,7 +503,7 @@ int main() {
                 globalTime = 0.f;
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
-                timeToNext = 20.f;
+                timeToNext = 40.f;
 
                 orders.clear();
                 orders.push_back(new Order);

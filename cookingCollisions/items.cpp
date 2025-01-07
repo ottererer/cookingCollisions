@@ -177,7 +177,7 @@ void BaseItem::CombineItems()
 }
 
 // Creates a new object of a given type
-BaseItem* BaseItem::CreateCombinedItem(std::string& type)
+BaseItem* BaseItem::CreateCombinedItem(const std::string& type)
 {
     return new Ingredient(dishTextures[type], type);
 }
@@ -232,7 +232,7 @@ void BaseItem::Tick(float deltaTime)
 }
 
 // Constructor for the Plate subclass
-Plate::Plate(std::map<std::string, Texture2D> textures, float width, float height) :
+Plate::Plate(const std::map<std::string, Texture2D>& textures, float width, float height) :
     BaseItem(textures, "plate")
 {
     if (width != 0.f) SetWidth(width);
@@ -240,7 +240,7 @@ Plate::Plate(std::map<std::string, Texture2D> textures, float width, float heigh
 }
 
 // Checks if an item can be placed on a given plate
-bool Plate::CanPlace(std::string type) const
+bool Plate::CanPlace(const std::string& type) const
 {
     // If the item being placed is not a plate and the plate is empty,
     // or the item being placed is compatible with what is already placed
@@ -263,7 +263,7 @@ Ingredient::Ingredient(std::map<std::string, Texture2D> textures, std::string ty
 }
 
 // Checks if an item can be chopped
-bool Ingredient::CanChop(std::string type) const
+bool Ingredient::CanChop(const std::string& type) const
 {
     // If applying the chopping board input to the item yields a valid result, it can be chopped
     if (recipes.ApplyInputToNode(type, "chopping board") != "NULL") return true;
@@ -271,7 +271,7 @@ bool Ingredient::CanChop(std::string type) const
 }
 
 // Checks if an item can be fried
-bool Ingredient::CanFry(std::string type) const
+bool Ingredient::CanFry(const std::string& type) const
 {
     // If applying the frying pan input to the item yields a valid result, it can be fried
     if (recipes.ApplyInputToNode(type, "frying pan") != "NULL") return true;
@@ -279,7 +279,7 @@ bool Ingredient::CanFry(std::string type) const
 }
 
 // Checks if an item can be boiled
-bool Ingredient::CanBoil(std::string type) const
+bool Ingredient::CanBoil(const std::string& type) const
 {
     // If applying the saucepan input to the item yields a valid result, it can be boiled
     if (recipes.ApplyInputToNode(type, "saucepan") != "NULL") return true;
@@ -295,7 +295,7 @@ bool Ingredient::CanServe() const
 }
 
 // Checks if an item can be served, and it fulfills an order
-bool Ingredient::CanServeSuccessfully(std::string type) const
+bool Ingredient::CanServeSuccessfully(const std::string& type) const
 {
     // If the current dish is present in the list of ordered dishes
     if (std::count(orderedDishes.begin(), orderedDishes.end(), type)) {
@@ -305,7 +305,7 @@ bool Ingredient::CanServeSuccessfully(std::string type) const
 }
 
 // Constructor for the Tool subclass
-Tool::Tool(std::map<std::string, Texture2D> textures, std::string type, float width, float height) :
+Tool::Tool(const std::map<std::string, Texture2D>& textures, const std::string& type, float width, float height) :
     BaseItem(textures, type) 
 {
     if (width != 0.f) SetWidth(width);
@@ -319,7 +319,7 @@ Tool::Tool(std::map<std::string, Texture2D> textures, std::string type, float wi
     }
 }
 
-bool Tool::CanPlace(std::string type) const
+bool Tool::CanPlace(const std::string& type) const
 {   
     if (itemsPlaced[0] != nullptr) return 0;
     else if (recipes.ApplyInputToNode(type, GetType()) != "NULL") return 1;
