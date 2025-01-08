@@ -3,7 +3,6 @@
 #include <map>
 #include <unordered_map>
 #include <random>
-#include <math.h>
 #include <cmath>
 #include "config.h"
 #include "player.h"
@@ -61,7 +60,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
                     // Otherwise increments the index
                     else index++;
                 }
-                if (!found) gameTimer -= 20.f; // Time penalty
+                if (!found) gameTimer -= 15.f; // Time penalty
             }
             ++it;
         }
@@ -177,7 +176,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     if (timeSinceOrder >= timeToNext) {
         if (orders.size() < 5) {
             timeSinceOrder = 0;
-            timeToNext = 20.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
+            timeToNext = 40.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
             orders.push_back(new Order);
         }
     }
@@ -296,7 +295,7 @@ int main() {
     float globalTime = 0.f;
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
-    float timeToNext = 20.f;
+    float timeToNext = 40.f;
     
     int roundScore = 0;
     float roundTime = 0.f;
@@ -503,7 +502,7 @@ int main() {
                 globalTime = 0.f;
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
-                timeToNext = 20.f;
+                timeToNext = 40.f;
 
                 orders.clear();
                 orders.push_back(new Order);
