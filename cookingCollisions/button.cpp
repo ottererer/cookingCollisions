@@ -7,7 +7,7 @@ screenPos(pos),
 size(dimensions),
 outlineThickness(thickness)
 {
-	fontSize = size.y - 5.f;
+	fontSize = static_cast<int>(size.y - 5.f);
 }
 
 // Check if the mouse cursor is currently hovering the button
@@ -45,7 +45,7 @@ void Button::Tick()
 
 	// Draws text centred on the button
 	DrawText(label.c_str(),
-		screenPos.x + (size.x - MeasureText(label.c_str(),
-		fontSize))/2.f, screenPos.y + (size.y - fontSize)/2.f,
+		static_cast<int>(screenPos.x + (size.x - MeasureText(label.c_str(),
+			fontSize)) / 2.f), static_cast<int>(screenPos.y + (size.y - fontSize) / 2.f),
 		fontSize, BLACK);
 }

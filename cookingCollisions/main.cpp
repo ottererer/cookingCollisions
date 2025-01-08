@@ -170,6 +170,9 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
         DrawText("before submitting them", 20, 190, 20, BLACK);
 
         DrawText("Submit dishes here", static_cast<int>(winWidth / 2.f - MeasureText("Submit dishes here", 20) / 2), 170, 20, BLACK);
+
+        DrawText("Bin ->", 20, 430, 20, BLACK);
+        DrawText("<- Bin", 780 - MeasureText("<- Bin", 20), 430, 20, BLACK);
     }
     else {
         // Draws the time to the screen
@@ -352,7 +355,7 @@ int main() {
                     "vegetable core", "aroma sphere", "cooling shard", "caramel essence", "frozen spice mix",
                     "protein veg mix", "spiced liquid", "sugar shards"});
 
-    std::vector<std::string> tutorialOrders = { "aroma sphere" ,"caramel essence","icy sweet mix", "protein veg mix",
+    std::vector<std::string> tutorialOrders = { "energy particle" , "aroma sphere","caramel essence","icy sweet mix",
                                                 "protein salad", "frosted energy treat", "temp"};
 
     std::vector<Order*> orders;

@@ -90,7 +90,7 @@ void CounterUnit::Tick(float deltaTime)
 
     // Handles drawing additional lines to represent edges of the counter
     if (counterEdges[0]) {
-        DrawLineEx(screenPos, Vector2{ screenPos.x + counterWidth, screenPos.y }, edgeThickness, BLACK);
+        DrawLineEx(screenPos, Vector2{ screenPos.x + static_cast<int>(counterWidth), screenPos.y }, edgeThickness, BLACK);
     }
     if (counterEdges[1]) {
         DrawLineEx(Vector2{ screenPos.x + counterWidth, screenPos.y }, Vector2{ screenPos.x + counterWidth, screenPos.y + counterWidth }, edgeThickness, BLACK);
@@ -102,18 +102,18 @@ void CounterUnit::Tick(float deltaTime)
         DrawLineEx(Vector2{ screenPos.x, screenPos.y + counterWidth }, screenPos, edgeThickness, BLACK);
     }
 
-    DrawRectangle(screenPos.x, screenPos.y, counterWidth, counterWidth, BEIGE);  // The main body of the unit
+    DrawRectangle(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y), static_cast<int>(counterWidth), static_cast<int>(counterWidth), BEIGE);  // The main body of the unit
 
     // Additional features if the unit is a bin
     if (unitType == "bin") {
-        DrawCircle(screenPos.x + counterWidth / 2.f, screenPos.y + counterWidth / 2.f, counterWidth / 2.f - counterWidth / 6.f, { 80, 80, 80, 255 });
-        DrawCircle(screenPos.x + counterWidth / 2.f, screenPos.y + counterWidth / 2.f, counterWidth / 2.f - counterWidth / 4.f, BLACK);
+        DrawCircle(static_cast<int>(screenPos.x + counterWidth / 2.f), static_cast<int>(screenPos.y + counterWidth / 2.f), static_cast<float>(counterWidth / 2.f - counterWidth / 6.f), { 80, 80, 80, 255 });
+        DrawCircle(static_cast<int>(screenPos.x + counterWidth / 2.f), static_cast<int>(screenPos.y + counterWidth / 2.f), static_cast<float>(counterWidth / 2.f - counterWidth / 4.f), BLACK);
     }
 
     // Additional features if the unit is a delivery unit
     else if (unitType == "delivery") {
-        DrawRectangle(screenPos.x + 10.f, screenPos.y, counterWidth - 20.f, counterWidth - 10.f, BLACK);
-        DrawRectangle(screenPos.x + 10.f, screenPos.y - counterWidth, counterWidth - 20.f, 2 * counterWidth - 10.f, BLACK);
+        DrawRectangle(static_cast<int>(screenPos.x + 10.f), static_cast<int>(screenPos.y), static_cast<int>(counterWidth - 20.f), static_cast<int>(counterWidth - 10.f), BLACK);
+        DrawRectangle(static_cast<int>(screenPos.x + 10.f), static_cast<int>(screenPos.y - counterWidth), static_cast<int>(counterWidth - 20.f), static_cast <int>(2 * counterWidth - 10.f), BLACK);
     }
     
     // Sets the position of any placed items to the unit's position

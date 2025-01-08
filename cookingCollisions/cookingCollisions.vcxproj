@@ -137,10 +137,17 @@
       <AdditionalDependencies>raylib.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Dependencies\raylib.dll" "$(OutDir)"
-
-copy /Y "$(ProjectDir)Dependencies\glfw3.dll" "$(OutDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="button.cpp" />
@@ -164,6 +171,14 @@ copy /Y "$(ProjectDir)Dependencies\glfw3.dll" "$(OutDir)"</Command>
     <ClInclude Include="raylib.h" />
     <ClInclude Include="recipeBook.h" />
     <ClInclude Include="recipeGraph.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="glfw3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="raylib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

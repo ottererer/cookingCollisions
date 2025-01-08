@@ -8,7 +8,7 @@ std::unordered_map<std::string, Texture2D> Order::dishTextures;
 // Constructor for the Order class
 Order::Order(float time)
 {
-    dish = availableTypes[RandomNumber(0, availableTypes.size() - 1)];  // Randomly determines which dish to order
+    dish = availableTypes[RandomNumber(0, static_cast<int>(availableTypes.size()) - 1)];  // Randomly determines which dish to order
     maxTime = time;
     timeRemaining = maxTime;
 }
@@ -70,10 +70,10 @@ void Order::Tick(float deltaTime)
 
     screenPos.x = 250.f * static_cast<float>(winWidth) / 800.f + (size.x + 20.f) * orderNum;  // Determines the position based on its number
 
-    DrawRectangle(screenPos.x, screenPos.y, size.x, size.y, WHITE);
+    DrawRectangle(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y), static_cast<int>(size.x), static_cast<int>(size.y), WHITE);
 
-    unsigned char rValue = 255 * pow(1.f - timeRemaining/maxTime, 4);  // Determines the R values such that it increases over time
-    DrawRectangle(screenPos.x + 5.f, size.y - 25.f, static_cast<int>(timeRemaining/maxTime * (size.x - 10.f)), 20, {rValue, 0, 0, 255});
+    unsigned char rValue = static_cast <unsigned char>(255.f * pow(1.f - timeRemaining / maxTime, 4));  // Determines the R values such that it increases over time
+    DrawRectangle(static_cast<int>(screenPos.x + 5.f), static_cast<int>(size.y - 25.f), static_cast<int>(timeRemaining / maxTime * (size.x - 10.f)), 20, { rValue, 0, 0, 255 });
 
     DrawDish();
 }

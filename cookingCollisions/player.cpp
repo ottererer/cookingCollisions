@@ -11,7 +11,7 @@ float Player::AngleToTarget(const Vector2& targetPos)
     float a = Vector2Length(Vector2Add(targetRelative, viewVector));
     float b = Vector2Length(viewVector);
     float c = Vector2Length(targetRelative);
-    float targetAngle = acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2 * b * c));
+    float targetAngle = static_cast<float>(acos((pow(b, 2) + pow(c, 2) - pow(a, 2)) / (2 * b * c)));
 
     return targetAngle;
 }
@@ -325,7 +325,7 @@ void Player::Tick(float deltaTime)
     if (Vector2Length(moveDir) != 0) {
         HandleBounds(deltaTime);
         float rotation = rotateSpeed * deltaTime;
-        float targetDir = (viewSum - remainder(viewSum, 1)) / (10 * remainder(viewSum, 1));
+        float targetDir = static_cast<float>((viewSum - remainder(viewSum, 1)) / (10.f * remainder(viewSum, 1)));
         float lowerBound;
         if (targetDir < 180.f) lowerBound = targetDir + 180.f;
         else lowerBound = targetDir - 180.f;
@@ -351,5 +351,5 @@ void Player::Tick(float deltaTime)
 void Player::Draw()
 {
     DrawArms(viewDir);
-    DrawCircle(screenPos.x, screenPos.y, playerRadius, BLUE);
+    DrawCircle(static_cast<int>(screenPos.x), static_cast<int>(screenPos.y), playerRadius, BLUE);
 }

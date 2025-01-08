@@ -2,7 +2,7 @@
 
 RecipeBook::RecipeBook(const std::vector<Texture2D>& textures) :
 	recipeTextures(textures),
-	bookLength(textures.size() - 1)
+    bookLength(static_cast<int>(textures.size()) - 1)
 {
 
 }
