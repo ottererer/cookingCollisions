@@ -22,14 +22,16 @@ public:
 	void ClearItems() { itemsPlaced = { nullptr, nullptr }; }
 	void ClearTemps() { tempItems = { nullptr, nullptr }; }
 	void ResetTimer() { itemTimer = 0.f; }
+
+	static void PlaySoundEffect(const std::string& soundName);
+	static void StopSoundEffect(const std::string& soundName);
+
 	virtual bool CanPickup() const = 0;
 	virtual bool CanPlace(const std::string& type) const = 0;
 
 	virtual bool CanChop(const std::string& type) const { return 0; }
 	virtual bool CanFry(const std::string& type) const { return 0; }
 	virtual bool CanBoil(const std::string& type) const { return 0; }
-	virtual bool CanServe() const { return 0; }
-	virtual bool CanServeSuccessfully(const std::string& type) const { return 0; }
 
 	void HandleCooking();
 	void RemoveItems(bool removeSelf = true, bool removePlaced = true);
@@ -80,6 +82,7 @@ protected:
 	static std::unordered_map<std::string, std::map<std::string, Texture2D>> dishTextures;
 	static RecipeGraph& recipes;
 	static std::vector<std::string> orderedDishes;
+	static std::unordered_map<std::string, Sound> soundEffects;
 
 private:
 	bool combineItems = false;
@@ -115,8 +118,6 @@ public:
 	bool CanChop(const std::string& type) const override;
 	bool CanFry(const std::string& type) const override;
 	bool CanBoil(const std::string& type) const override;
-	bool CanServe() const override;
-	bool CanServeSuccessfully(const std::string& type) const override;
 };
 
 class Tool : public BaseItem

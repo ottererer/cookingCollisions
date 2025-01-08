@@ -14,7 +14,8 @@
 
 // Handles events related to dishes, such as removing, combining, and serving items
 std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items, const std::vector<std::string>& orderedDishes,
-    std::vector<Order*>& orders, const std::vector<CounterUnit*> units, float& gameTimer, int& score)
+    std::vector<Order*>& orders, const std::vector<CounterUnit*> units, float& gameTimer, int& score, bool isTutorial,
+    int& ordersDelivered)
 {
     int newItemPlate = -1;  // Initialises the new item variable to null
     int newItemUnit = -1;
@@ -35,7 +36,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
 
             // If the current item is flagged to combine items
             else if (currentItem->GetCombine()) {
-                newItemPlate = std::distance(items.begin(), it);  // Gets the index of the current item
+                newItemPlate = static_cast<int>(std::distance(items.begin(), it));  // Gets the index of the current item
             }
 
             // If the current item is flagged to serve
@@ -52,15 +53,19 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
                         found = true;
 
                         // Adds time and score
-                        gameTimer += 20.f;
-                        score += 10;
-                        if (gameTimer > 150.f) gameTimer = 150.f; // Ensures the time does not go above 180 seconds
+                        if (!isTutorial) {
+                            ordersDelivered++;
+                            std::cout << ordersDelivered << "\n";
+                            gameTimer += 20.f;
+                            score += 10;
+                            if (gameTimer > 150.f) gameTimer = 150.f; // Ensures the time does not go above 180 seconds
+                        }
                     }
 
                     // Otherwise increments the index
                     else index++;
                 }
-                if (!found) gameTimer -= 15.f; // Time penalty
+                if (!found && !isTutorial) gameTimer -= 15.f; // Time penalty
             }
             ++it;
         }
@@ -72,7 +77,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
 
         if (currentUnit != nullptr) {
             if (currentUnit->GetCombine()) {
-                newItemUnit = std::distance(units.begin(), it);
+                newItemUnit = static_cast<int>(std::distance(units.begin(), it));
             }
             it++;
         }
@@ -82,8 +87,9 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
 }
 
 // Handles drawing and some logic during the main sequence
-void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, float& timeSinceOrder, float& timeToNext,
-    Player& player, Counter& counter, std::vector<BaseItem*>& items, std::vector<Order*>& orders, RecipeBook& recipeBook)
+void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float& timeSinceOrder, float& timeToNext,
+    Player& player, Counter& counter, std::vector<BaseItem*>& items, std::vector<Order*>& orders, RecipeBook& recipeBook,
+    std::vector<std::string>& tutorialOrders, int& ordersDelivered, std::vector<int>& orderLevels)
 {
     BeginDrawing();
     ClearBackground(BROWN);
@@ -127,7 +133,8 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     }
 
     std::unordered_map<std::string, int> newItems = handleEvents(items, orderedDishes, orders,
-                                                                counter.GetUnitsPointers(), gameTimer, score);
+                                                                counter.GetUnitsPointers(), gameTimer, score,
+                                                                tutorialOrders.size(), ordersDelivered);
     
     // If there is a new item, add the new item to the list
     if (newItems["plate"] != -1) {
@@ -151,14 +158,44 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
         unit->ResetFlags();
     }
 
-    // Draws the time to the screen
-    char timerText[50];
-    sprintf_s(timerText, "Time: %.1f", gameTimer);
-    DrawText(timerText, 20, 20, 40, BLACK);
+    DrawText("Orders ->", 140, 5, 20, BLACK);
 
-    // Draws the score to the screen
-    std::string scoreText = "Score: " + std::to_string(score);
-    DrawText(scoreText.c_str(), 20, 70, 40, BLACK);
+    if (tutorialOrders.size()) {
+        DrawText("Training", 20, 20, 40, BLACK);
+        DrawText("Skip Training - Q", 20, 70, 20, BLACK);
+        DrawText("Create and submit", 20, 100, 20, BLACK);
+        DrawText("the ordered dishes", 20, 120, 20, BLACK);
+        DrawText("Remember to place", 20, 150, 20, BLACK);
+        DrawText("dishes on plates", 20, 170, 20, BLACK);
+        DrawText("before submitting them", 20, 190, 20, BLACK);
+
+        DrawText("Submit dishes here", static_cast<int>(winWidth / 2.f - MeasureText("Submit dishes here", 20) / 2), 170, 20, BLACK);
+    }
+    else {
+        // Draws the time to the screen
+        char timerText[50];
+        sprintf_s(timerText, "Time: %.1f", gameTimer);
+        DrawText(timerText, 20, 20, 40, BLACK);
+
+        // Draws the score to the screen
+        std::string scoreText = "Score: " + std::to_string(score);
+        DrawText(scoreText.c_str(), 20, 70, 40, BLACK);
+    }
+
+    if (orderLevels.size() && ordersDelivered >= orderLevels[0]) {
+        if (orderLevels[0] == 10) {
+            Order::AddType({ "caramel energy cube", "spicy frost bomb", "protein salad",
+                            "liquid flame soup", "frosted energy treat" });
+        }
+        else if (orderLevels[0] == 20) {
+            Order::RemoveType({ "sweet crystal", "spice particle", "energy particle", "liquid essence", "protein orb",
+                    "vegetable core", "aroma sphere", "cooling shard" });
+        }
+        else {
+            Order::RemoveType({ "caramel essence", "frozen spice mix", "protein veg mix", "spiced liquid", "sugar shards" });
+        }
+        orderLevels.erase(orderLevels.begin());
+    }
 
     // Handles general logic for orders
     for (auto it = orders.begin(); it != orders.end();) {
@@ -167,6 +204,7 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
         // If the timer for an order runs out, impose time penalty
         if (currentItem->GetTime() <= 0.f) {
             it = orders.erase(it);
+            if (!tutorialOrders.size())
             gameTimer -= 15.f;
         }
         else ++it;
@@ -175,10 +213,16 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     // Resets the time, and determines the time until the next order appears
     if (timeSinceOrder >= timeToNext) {
         if (orders.size() < 5) {
-            timeSinceOrder = 0;
-            timeToNext = 40.f / (1 + 4 * std::log(1 + 0.003 * globalTime));
-            orders.push_back(new Order);
+            timeSinceOrder -= timeToNext;
+            timeToNext = 40.f / (1.f + 10.f * std::log(1.f + 0.001f * globalTime));
+            orders.push_back(new Order(60.f / (1.f + 25.f * std::log(1.f + 0.0002f * globalTime))));
         }
+    }
+
+    if (tutorialOrders.size() && !orders.size()) {
+        if (tutorialOrders.size() >= 2) orders.push_back(new Order(tutorialOrders[0]));
+        tutorialOrders.erase(tutorialOrders.begin());
+        if (!tutorialOrders.size()) orders.push_back(new Order(60.f));
     }
 
     // Sets the order of and draws all orders
@@ -192,9 +236,9 @@ void drawMain(float deltaTime, int& score, float globalTime, float& gameTimer, f
     DrawText("Movement - W/A/S/D", 20, 650, 20, BLACK);
     DrawText("Pickup/place item - E", 20, 670, 20, BLACK);
     DrawText("Pickup/place item from plate - SHIFT + E", 20, 690, 20, BLACK);
-    DrawText("Chop item - F", 20, 710, 20, BLACK);
-    DrawText("Open recipe book - R", 20, 730, 20, BLACK);
-    DrawText("Cycle page (recipe book) - LEFT / RIGHT", 20, 750, 20, BLACK);
+    DrawText("Chop item - F whilst item on chopping board", 20, 710, 20, BLACK);
+    DrawText("Fry item - Leave on pan for 5 seconds", 20, 730, 20, BLACK);
+    DrawText("Open recipe book - R", 20, 750, 20, BLACK);
     DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
 
     recipeBook.Tick();
@@ -208,14 +252,14 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highSco
     BeginDrawing();
     ClearBackground(BEIGE);
 
-    DrawText("Recipe For", winWidth / 2.f - MeasureText("Recipe For", 100) / 2, 100.f, 100, BLACK);
-    DrawText("Disaster", winWidth / 2.f - MeasureText("Disaster", 100) / 2, 220.f, 100, BLACK);
+    DrawText("Recipe For", static_cast<int>(winWidth / 2.f - MeasureText("Recipe For", 100) / 2), 100, 100, BLACK);
+    DrawText("Disaster", static_cast<int>(winWidth / 2.f - MeasureText("Disaster", 100) / 2), 220, 100, BLACK);
 
     DrawText("Start game - ENTER", 20, 750, 20, BLACK);
     DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
     
     std::string highScoreText = "Session best: " + std::to_string(highScore);
-    DrawText(highScoreText.c_str(), winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2, 600, 60, BLACK);
+    DrawText(highScoreText.c_str(), static_cast<int>(winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2), 600, 60, BLACK);
 
     // Draws all buttons
     for (Button* button : buttons) {
@@ -243,11 +287,11 @@ void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score, f
     DrawText("Mute/unmute music - M", 20, 770, 20, BLACK);
 
     std::string scoreText = "Score: " + std::to_string(score);
-    DrawText(scoreText.c_str(), winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2, 530, 60, BLACK);
+    DrawText(scoreText.c_str(), static_cast<int>(winWidth / 2.f - MeasureText(scoreText.c_str(), 60) / 2), 530, 60, BLACK);
 
     char timerText[50];
     sprintf_s(timerText, "Time: %.1f", timeLived);
-    DrawText(timerText, winWidth / 2.f - MeasureText(timerText, 40) / 2, 600, 40, BLACK);
+    DrawText(timerText, static_cast<int>(winWidth / 2.f - MeasureText(timerText, 40) / 2), 600, 40, BLACK);
 
     for (Button* button : buttons) {
         button->Tick();
@@ -274,7 +318,7 @@ int main() {
     SetTargetFPS(FPS);
 
     Music music = LoadMusicStream("assets/LaMusique.mp3");
-    SetMasterVolume(0.4f);
+    SetMusicVolume(music, 0.2f);
     bool muted = false;
 
     PlayMusicStream(music);
@@ -296,17 +340,24 @@ int main() {
     float gameTimer = 120.f;
     float timeSinceOrder = 0.f;
     float timeToNext = 40.f;
+    int ordersDelivered = 0;
+    std::vector<int> orderLevels = { 10, 20, 30 };
     
     int roundScore = 0;
     float roundTime = 0.f;
 
     Player player({ static_cast<float>(winWidth) / 2.f, static_cast<float>(winHeight) / 2.f });
 
-    Order::AddType({ "caramel energy cube", "spicy frost bomb", "protein salad",
-                    "liquid flame soup", "frosted energy treat"});
+    Order::AddType({ "sweet crystal", "spice particle", "energy particle", "liquid essence", "protein orb",
+                    "vegetable core", "aroma sphere", "cooling shard", "caramel essence", "frozen spice mix",
+                    "protein veg mix", "spiced liquid", "sugar shards"});
+
+    std::vector<std::string> tutorialOrders = { "aroma sphere" ,"caramel essence","icy sweet mix", "protein veg mix",
+                                                "protein salad", "frosted energy treat", "temp"};
 
     std::vector<Order*> orders;
-    orders.push_back(new Order);  // Initially adds an order to the queue
+    orders.push_back(new Order(tutorialOrders[0]));  // Initially adds an order to the queue
+    tutorialOrders.erase(tutorialOrders.begin());
 
     BaseItem::SetupClass();
 
@@ -373,11 +424,29 @@ int main() {
     recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookLiquidFlameSoup.png"));
     recipeTextures.push_back(BaseItem::LoadTexture("assets/RecipeBookFrostedEnergyTreat.png"));
 
-    orderTextures["caramel energy cube"] = BaseItem::LoadTexture("assets/CaramelEnergyCube.png");
-    orderTextures["spicy frost bomb"] = BaseItem::LoadTexture("assets/SpicyFrostBomb.png");
-    orderTextures["protein salad"] = BaseItem::LoadTexture("assets/ProteinSalad.png");
-    orderTextures["liquid flame soup"] = BaseItem::LoadTexture("assets/LiquidFlameSoup.png");
-    orderTextures["frosted energy treat"] = BaseItem::LoadTexture("assets/FrostedEnergyTreat.png");
+    std::string textureName;
+    std::unordered_map<std::string, std::map<std::string, Texture2D>> dishTextures = BaseItem::GetDishTextures();
+    for (auto textureSet : dishTextures) {
+        for (auto texturePair : textureSet.second) {
+            if (texturePair.first == "default") {
+                orderTextures[textureSet.first] = texturePair.second;
+            }
+        }
+    }
+
+    for (auto textureSet : textures) {
+        for (auto texturePair : textureSet.second) {
+            if (texturePair.first == "default") {
+                orderTextures[textureSet.first] = texturePair.second;
+            }
+        }
+    }
+
+    orderTextures["spicy frost bomb"] = dishTextures["frozen spice mix"]["chopped"];
+    orderTextures["liquid flame soup"] = dishTextures["spiced liquid"]["cooked"];
+    orderTextures["caramel essence"] = sweetCrystalTextures["cooked"];
+    orderTextures["sugar shards"] = sweetCrystalTextures["chopped"];
+
     // =============================================================================================
 
     RecipeBook recipeBook(recipeTextures);
@@ -424,15 +493,15 @@ int main() {
         running = !WindowShouldClose();
 
         float deltaTime = GetFrameTime();
-        float fps = GetFPS();
+        int fps = GetFPS();
         UpdateMusicStream(music);
 
         if (IsKeyPressed(KEY_M))
         {
             muted = !muted;
 
-            if (muted) SetMasterVolume(0.f);
-            else SetMasterVolume(0.4f);
+            if (muted) SetMusicVolume(music, 0.f);
+            else SetMusicVolume(music, 0.2f);
         }
 
         // Displays the framerate as the window title
@@ -448,9 +517,17 @@ int main() {
 
         // Logic if the game is in the main sequence
         else if (gameState == "main") {
-            globalTime += deltaTime;
-            gameTimer -= deltaTime;
-            timeSinceOrder += deltaTime;
+            if (!tutorialOrders.size()) {
+                globalTime += deltaTime;
+                gameTimer -= deltaTime;
+                if (orders.size()) timeSinceOrder += deltaTime;
+                else timeSinceOrder += deltaTime * 10;
+            }
+
+            if (IsKeyPressed(KEY_Q) && tutorialOrders.size()) {
+                tutorialOrders.clear();
+                orders.clear();
+            }
 
             // Logic to ensure source units are always filled
             auto& units = counter.GetUnits();
@@ -468,8 +545,8 @@ int main() {
                 }
             }
 
-            drawMain(deltaTime, score, globalTime, gameTimer, timeSinceOrder, timeToNext, player,
-                    counter, items, orders, recipeBook);
+            Tick(deltaTime, score, globalTime, gameTimer, timeSinceOrder, timeToNext, player,
+                    counter, items, orders, recipeBook, tutorialOrders, ordersDelivered, orderLevels);
 
             // If time runs out, ends and resets the game
             if (gameTimer <= 0.f) {
@@ -503,9 +580,11 @@ int main() {
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
                 timeToNext = 40.f;
+                int ordersDelivered = 0;
+                std::vector<int> orderLevels = { 10, 20 };
 
                 orders.clear();
-                orders.push_back(new Order);
+                orders.push_back(new Order(60.f));
             }
         }
 

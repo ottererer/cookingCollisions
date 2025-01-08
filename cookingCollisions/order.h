@@ -11,13 +11,17 @@
 class Order
 {
 public:
-	Order();
+	Order(float time);
+	Order(const std::string& dishName);
 	void Tick(float deltaTime);
 	void DrawDish();
 
 	static void SetupOrders(const std::unordered_map<std::string, Texture2D>& textures);
 	static int RandomNumber(int min, int max);
-	static void AddType(const std::vector<std::string>& types) { for (auto type : types) availableTypes.push_back(type); };
+	static void AddType(const std::vector<std::string>& types) { for (auto type : types)
+		availableTypes.push_back(type); };
+	static void RemoveType(const std::vector<std::string>& types) { for (std::string type : types)
+		availableTypes.erase(std::remove(availableTypes.begin(), availableTypes.end(), type), availableTypes.end()); }
 
 	// Getters
 	float GetTime() { return timeRemaining; }
@@ -32,8 +36,8 @@ public:
 private:
 	std::string dish;
 	int fontSize = 20;
-	float maxTime = 60.f;
-	float timeRemaining = maxTime;
+	float maxTime;
+	float timeRemaining;
 	int orderNum = 0;
 
 	Vector2 screenPos{0.f, 0.f};

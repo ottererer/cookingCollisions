@@ -65,14 +65,16 @@ void Player::HandleItems(const std::vector<CounterUnit*>& units)
             auto* itemPlaced = unit->GetPlaced();
 
             // Special interactions when holding shift
-            if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)) {
+            if ((IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT))
+                && unit->GetType() != "bin" && unit->GetType() != "delivery" &&
+                itemHeld != nullptr && itemHeld->GetType() == "plate") {
                 // If looking at a plate, with nothing in your hands
-                if (itemHeld == nullptr && itemPlaced->GetType() == "plate" && itemPlaced->GetPlaced() != nullptr) {
+                if (itemHeld == nullptr && itemPlaced->GetPlaced() != nullptr) {
                     SetHolding(itemPlaced->GetPlaced());
                     itemPlaced->ClearItems();
                 }
 
-                else if (itemHeld != nullptr && itemHeld->GetType() == "plate" && itemHeld->GetPlaced() != nullptr) {
+                else if (itemHeld != nullptr && itemHeld->GetPlaced() != nullptr) {
                     if (itemPlaced == nullptr) {
                         unit->AddItem(itemHeld->GetPlaced());
                         itemHeld->ClearItems();
@@ -111,7 +113,7 @@ void Player::HandleItems(const std::vector<CounterUnit*>& units)
 
             // If the currently selected unit is a delivery unit
             else if (itemHeld != nullptr && unit->GetType() == "delivery") {
-                if (itemHeld->GetPlaced() != nullptr && itemHeld->GetPlaced()->CanServe()) {
+                if (itemHeld->GetPlaced() != nullptr) {
                     unit->AddServing(itemHeld);
                     itemHeld->SetPos(unit->GetCentre());
                     itemHeld->SetServing(true);
@@ -132,6 +134,7 @@ void Player::HandleItems(const std::vector<CounterUnit*>& units)
 
                 if (itemPlaced->GetType() == "frying pan") {
                     itemPlaced->ResetTimer();
+                    BaseItem::PlaySoundEffect("frying");
                 }
             }
 
@@ -154,6 +157,7 @@ void Player::HandleItems(const std::vector<CounterUnit*>& units)
 
                         if (itemPlaced->GetType() == "frying pan") {
                             itemPlaced->ResetTimer();
+                            BaseItem::PlaySoundEffect("frying");
                         }
                     }
                 }

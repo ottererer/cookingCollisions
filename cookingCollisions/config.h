@@ -9,4 +9,4 @@ constexpr int winHeight = 800;
 // Uncaps the FPS
 constexpr int FPS = 0;
 
-constexpr float pi = 3.141592653589793;
+constexpr float pi = 3.141592653589793f;

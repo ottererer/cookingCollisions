@@ -4,6 +4,7 @@
 std::unordered_map<std::string, std::map<std::string, Texture2D>> BaseItem::dishTextures;
 RecipeGraph& BaseItem::recipes = RecipeGraph::GetInstance();
 std::vector<std::string> BaseItem::orderedDishes;
+std::unordered_map<std::string, Sound> BaseItem::soundEffects;
 
 // Static method to load and process textures
 Texture2D BaseItem::LoadTexture(std::string path)
@@ -21,6 +22,12 @@ Texture2D BaseItem::LoadTexture(std::string path)
 // Static method
 void BaseItem::SetupClass()
 {
+    soundEffects["frying"] = LoadSound("assets/FryingSFX.mp3");
+    SetSoundVolume(soundEffects["frying"], 0.5f);
+
+    soundEffects["chopping"] = LoadSound("assets/ChoppingSFX.mp3");
+    SetSoundVolume(soundEffects["chopping"], 0.3f);
+
     // Stores all available ingredients and dishes as nodes in a DAG
     std::vector<std::string> items = { "sweet crystal", "spice particle", "energy particle", "liquid essence",
         "protein orb", "vegetable core", "aroma sphere", "cooling shard", "caramel essence", "frozen spice mix",
@@ -54,13 +61,6 @@ void BaseItem::SetupClass()
     recipes.AddEdge("icy sweet mix", "frosted energy treat");
     recipes.AddEdge("energy particle", "frosted energy treat");
 
-    // Marks all objects that can be served
-    std::vector<std::string> serveable = { "caramel energy cube", "spicy frost bomb", "protein salad",
-                                            "liquid flame soup", "frosted energy treat"};
-    for (int i = 0; i < serveable.size(); i++) {
-        recipes.AddEdge(serveable[i], "serving", "serve");
-    }
-
     // Loads static textures to be used for non-spawning dishes
     std::map<std::string, Texture2D> caramelEnergyCubeTextures;
     caramelEnergyCubeTextures["default"] = LoadTexture("assets/CaramelEnergyCube.png");
@@ -92,6 +92,16 @@ void BaseItem::SetupClass()
     icySweetMixTextures["default"] = LoadTexture("assets/IcySweetMix.png");
     dishTextures["icy sweet mix"] = icySweetMixTextures;
 
+}
+
+void BaseItem::PlaySoundEffect(const std::string& soundName)
+{
+    PlaySound(soundEffects[soundName]);
+}
+
+void BaseItem::StopSoundEffect(const std::string& soundName)
+{
+    StopSound(soundEffects[soundName]);
 }
 
 // Places a new item on a given item
@@ -135,6 +145,7 @@ void BaseItem::HandleCooking()
         if (recipes.ApplyInputToNode(GetPlaced()->GetType(), "chopping board") == "NULL") return;
         GetPlaced()->SetState("chopped");
         GetPlaced()->SetType(recipes.ApplyInputToNode(GetPlaced()->GetType(), "chopping board"));
+        PlaySoundEffect("chopping");
     }
 }
 
@@ -283,24 +294,6 @@ bool Ingredient::CanBoil(const std::string& type) const
 {
     // If applying the saucepan input to the item yields a valid result, it can be boiled
     if (recipes.ApplyInputToNode(type, "saucepan") != "NULL") return true;
-    return false;
-}
-
-// Checks if an item can be served
-bool Ingredient::CanServe() const
-{
-    // If applying the serve input to the item yields a valid result, it can be served
-    if (recipes.ApplyInputToNode(GetType(), "serve") != "NULL") return true;
-    return false;
-}
-
-// Checks if an item can be served, and it fulfills an order
-bool Ingredient::CanServeSuccessfully(const std::string& type) const
-{
-    // If the current dish is present in the list of ordered dishes
-    if (std::count(orderedDishes.begin(), orderedDishes.end(), type)) {
-        return true;
-    }
     return false;
 }
 

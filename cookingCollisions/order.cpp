@@ -6,9 +6,18 @@ std::vector<std::string> Order::availableTypes;
 std::unordered_map<std::string, Texture2D> Order::dishTextures;
 
 // Constructor for the Order class
-Order::Order()
+Order::Order(float time)
 {
     dish = availableTypes[RandomNumber(0, availableTypes.size() - 1)];  // Randomly determines which dish to order
+    maxTime = time;
+    timeRemaining = maxTime;
+}
+
+Order::Order(const std::string& dishName)
+{
+    dish = dishName;
+    maxTime = 600.f;
+    timeRemaining = maxTime;
 }
 
 void Order::SetupOrders(const std::unordered_map<std::string, Texture2D>& textures)

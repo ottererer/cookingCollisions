@@ -41,7 +41,7 @@ public:
 
 private:
     Vector2 screenPos{};
-    float moveSpeed = 400.f * static_cast<float>(winWidth) / 800.f;
+    float moveSpeed = 350.f * static_cast<float>(winWidth) / 800.f;
     float playerRadius = 25.f * static_cast<float>(winWidth) / 800.f;
     float armLength = 30.f * static_cast<float>(winWidth) / 800.f;
     float armWidth = 8.f * static_cast<float>(winWidth) / 800.f;
