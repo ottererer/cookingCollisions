@@ -3,7 +3,7 @@
 Instructions:
 - As you play, orders will appear at the top of the screen, each with a timer.
 - You must combine different particles in order to create the right ones, and avoid running out of time.
-- Check your recipe book (Q) in order to learn which steps you must take.
+- Check your recipe book (R) in order to learn which steps you must take.
 - The recipe book displays the recipes as a directed graph, which you must following from left right.
 - You make new compounds by either performing an action on a particle (chopping or frying), or by combining two different particles.
 - What you need to do is indicated by the recipe book. E.g. a chopping board means you need to chop it.
@@ -29,3 +29,4 @@ Other key binds:
 - Start game (main menu) - ENTER
 - Return to main menu (end screen) - ENTER
 - Restart game (end screen) - R
+- Skip training - Q
