@@ -3,7 +3,6 @@
 #include <map>
 #include <unordered_map>
 #include <random>
-#include <math.h>
 #include <cmath>
 #include "config.h"
 #include "player.h"
