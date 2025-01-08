@@ -55,7 +55,6 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
                         // Adds time and score
                         if (!isTutorial) {
                             ordersDelivered++;
-                            std::cout << ordersDelivered << "\n";
                             gameTimer += 20.f;
                             score += 10;
                             if (gameTimer > 150.f) gameTimer = 150.f; // Ensures the time does not go above 180 seconds
