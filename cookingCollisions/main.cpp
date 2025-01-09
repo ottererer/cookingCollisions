@@ -70,7 +70,7 @@ std::unordered_map<std::string, int> handleEvents(std::vector<BaseItem*>& items,
         }
     }
 
-
+    // Iterates through all units and checks for combinations
     for (auto it = units.begin(); it != units.end();) {
         CounterUnit* currentUnit = *it;
 
@@ -143,12 +143,14 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
         }
     }
 
+    // Handles combined items on plates
     if (newItems["unit"] != -1) {
         items.push_back(counter.GetUnitsPointers()[newItems["unit"]]->GetPlaced());
     }
 
     player.Draw();
 
+    // Resets flags for all items and units
     for (BaseItem* item : items) {
         item->ResetFlags();
     }
@@ -159,6 +161,7 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
 
     DrawText("Orders ->", 140, 5, 20, BLACK);
 
+    // Draws tutorial text
     if (tutorialOrders.size()) {
         DrawText("Training", 20, 20, 40, BLACK);
         DrawText("Skip Training - Q", 20, 70, 20, BLACK);
@@ -184,6 +187,7 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
         DrawText(scoreText.c_str(), 20, 70, 40, BLACK);
     }
 
+    // Handles difficulty levels
     if (orderLevels.size() && ordersDelivered >= orderLevels[0]) {
         if (orderLevels[0] == 10) {
             Order::AddType({ "caramel energy cube", "spicy frost bomb", "protein salad",
@@ -221,6 +225,7 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
         }
     }
 
+    // Cycles through tutorial orders
     if (tutorialOrders.size() && !orders.size()) {
         if (tutorialOrders.size() >= 2) orders.push_back(new Order(tutorialOrders[0]));
         tutorialOrders.erase(tutorialOrders.begin());
@@ -235,6 +240,7 @@ void Tick(float deltaTime, int& score, float globalTime, float& gameTimer, float
         }
     }
 
+    // Draws keybinds
     DrawText("Movement - W/A/S/D", 20, 650, 20, BLACK);
     DrawText("Pickup/place item - E", 20, 670, 20, BLACK);
     DrawText("Pickup/place item from plate - SHIFT + E", 20, 690, 20, BLACK);
@@ -263,7 +269,7 @@ void drawMenu(std::string& gameState, std::vector<Button*>& buttons, int highSco
     std::string highScoreText = "Session best: " + std::to_string(highScore);
     DrawText(highScoreText.c_str(), static_cast<int>(winWidth / 2.f - MeasureText(highScoreText.c_str(), 60) / 2), 600, 60, BLACK);
 
-    // Draws all buttons
+    // Draws all buttons and checks if they are pressed
     for (Button* button : buttons) {
         button->Tick();
         if (button->GetPressed()) {
@@ -295,6 +301,7 @@ void drawEnd(std::string& gameState, std::vector<Button*>& buttons, int score, f
     sprintf_s(timerText, "Time: %.1f", timeLived);
     DrawText(timerText, static_cast<int>(winWidth / 2.f - MeasureText(timerText, 40) / 2), 600, 40, BLACK);
 
+    // Checks if a button is pressed
     for (Button* button : buttons) {
         button->Tick();
         if (button->GetPressed()) {
@@ -582,8 +589,8 @@ int main() {
                 gameTimer = 120.f;
                 timeSinceOrder = 0.f;
                 timeToNext = 40.f;
-                int ordersDelivered = 0;
-                std::vector<int> orderLevels = { 10, 20 };
+                ordersDelivered = 0;
+                orderLevels = { 10, 20 };
 
                 orders.clear();
                 orders.push_back(new Order(60.f));
